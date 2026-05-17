@@ -15,6 +15,7 @@ export async function POST(request: Request) {
       image,
       gender,
       age,
+    
       height,
       currentWeight,
       targetWeight,
@@ -75,6 +76,7 @@ export async function POST(request: Request) {
 
       gender,
       age,
+      isBlocked: false,
       height,
       currentWeight,
       targetWeight,
@@ -102,7 +104,7 @@ export async function POST(request: Request) {
 
           gender: newUser.gender,
           age: newUser.age,
-
+          isBlocked: newUser.isBlocked,
           height: newUser.height,
           currentWeight: newUser.currentWeight,
           targetWeight: newUser.targetWeight,

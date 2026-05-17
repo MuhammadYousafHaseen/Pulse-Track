@@ -10,6 +10,7 @@ export interface IUser extends Document {
 
   gender?: "male" | "female" | "other";
   age?: number;
+  isBlocked?: boolean;
 
   height?: number;
   currentWeight?: number;
@@ -60,6 +61,11 @@ const userSchema: Schema<IUser> = new Schema(
 
     age: {
       type: Number,
+    },
+
+    isBlocked: {
+      type: Boolean,
+      default: false,
     },
 
     height: {
