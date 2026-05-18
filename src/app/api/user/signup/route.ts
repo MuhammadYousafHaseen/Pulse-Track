@@ -15,7 +15,6 @@ export async function POST(request: Request) {
       image,
       gender,
       age,
-    
       height,
       currentWeight,
       targetWeight,
@@ -25,18 +24,43 @@ export async function POST(request: Request) {
       waterGoal,
     } = body;
 
-    // Required fields check
-    if (!name || !email || !password || !height || !image || !currentWeight || !targetWeight || !activityLevel || !goalType   || !dailyCalorieGoal    || !gender || !age  || !waterGoal) {
+    // Normalize inputs
+    const normalizedName = name.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+
+
+    // Required fields validation
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !gender ||
+      age === undefined ||
+      height === undefined ||
+      currentWeight === undefined
+    ) {
       return Response.json(
         {
           success: false,
-          message: "Name, email, password, height, image, currentWeight, targetWeight, activityLevel, goalType, dailyCalorieGoal, gender, age, and waterGoal are required",
+          message:
+            "Name, email, password, gender, age, height and currentWeight are required",
         },
         { status: 400 }
       );
     }
 
-    // Check existing user
+    // Password validation
+    if (password.length < 6) {
+      return Response.json(
+        {
+          success: false,
+          message: "Password must be at least 6 characters long",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Existing user check
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -52,41 +76,44 @@ export async function POST(request: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // -------------------------------
-    // 🧠 BMI CALCULATION LOGIC
-    // -------------------------------
+    // BMI Calculation
     let bmi: number | undefined = undefined;
 
-    if (height && currentWeight) {
+    if (height > 0 && currentWeight > 0) {
       const heightInMeters = height / 100;
 
-      if (heightInMeters > 0) {
-        bmi = parseFloat(
-          (currentWeight / (heightInMeters * heightInMeters)).toFixed(2)
-        );
-      }
+      bmi = parseFloat(
+        (currentWeight / (heightInMeters * heightInMeters)).toFixed(2)
+      );
     }
 
     // Create user
     const newUser = await User.create({
-      name,
-      email,
+      name: normalizedName,
+      email : normalizedEmail,
       password: hashedPassword,
+
       image: image || undefined,
+
+      role: "user",
 
       gender,
       age,
+
       isBlocked: false,
+
       height,
       currentWeight,
-      targetWeight,
 
-      bmi, // ✅ stored here
+      targetWeight: targetWeight || undefined,
 
-      activityLevel,
-      goalType,
+      bmi,
 
-      dailyCalorieGoal,
+      activityLevel: activityLevel || undefined,
+
+      goalType: goalType || undefined,
+
+      dailyCalorieGoal: dailyCalorieGoal || undefined,
 
       waterGoal: waterGoal || 2000,
     });
@@ -95,27 +122,12 @@ export async function POST(request: Request) {
       {
         success: true,
         message: "User registered successfully",
+
         user: {
           id: newUser._id,
           name: newUser.name,
           email: newUser.email,
-          image: newUser.image,
           role: newUser.role,
-
-          gender: newUser.gender,
-          age: newUser.age,
-          isBlocked: newUser.isBlocked,
-          height: newUser.height,
-          currentWeight: newUser.currentWeight,
-          targetWeight: newUser.targetWeight,
-
-          bmi: newUser.bmi, // ✅ now correctly returned
-
-          activityLevel: newUser.activityLevel,
-          goalType: newUser.goalType,
-
-          dailyCalorieGoal: newUser.dailyCalorieGoal,
-          waterGoal: newUser.waterGoal,
         },
       },
       { status: 201 }
