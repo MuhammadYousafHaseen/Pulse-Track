@@ -1,17 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
+// -----------------------------
 // Public routes
+// -----------------------------
 const PUBLIC_ROUTES = [
   "/",
   "/auth/login",
   "/auth/register",
 ];
 
+// -----------------------------
 // Admin route prefix
+// -----------------------------
 const ADMIN_ROUTE = "/admin";
 
+// -----------------------------
 // Protected route prefixes
+// -----------------------------
 const PROTECTED_ROUTES = [
   "/dashboard",
   "/workouts",
@@ -26,27 +32,35 @@ const PROTECTED_ROUTES = [
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Get JWT token
+  // --------------------------------------------------
+  // IMPORTANT: NEVER interfere with NextAuth routes
+  // --------------------------------------------------
+  if (pathname.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/api")) {
+    return NextResponse.next();
+  }
+
+  // Get JWT token from NextAuth
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
   });
 
   // -----------------------------
-  // 1. Allow public routes
+  // 1. Public routes
   // -----------------------------
   const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
 
   if (isPublicRoute) {
-    // Prevent logged-in users from visiting login/register again
+    // If logged in, prevent access to login/register
     if (
       token &&
-      (pathname === "/auth/login" ||
-        pathname === "/auth/register")
+      (pathname === "/auth/login" || pathname === "/auth/register")
     ) {
-      return NextResponse.redirect(
-        new URL("/dashboard", req.url)
-      );
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
     return NextResponse.next();
@@ -60,9 +74,7 @@ export async function middleware(req: NextRequest) {
   );
 
   if (isProtectedRoute && !token) {
-    return NextResponse.redirect(
-      new URL("/auth/login", req.url)
-    );
+    return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 
   // -----------------------------
@@ -70,16 +82,11 @@ export async function middleware(req: NextRequest) {
   // -----------------------------
   if (pathname.startsWith(ADMIN_ROUTE)) {
     if (!token) {
-      return NextResponse.redirect(
-        new URL("/auth/login", req.url)
-      );
+      return NextResponse.redirect(new URL("/auth/login", req.url));
     }
 
-    // Role check
     if (token.role !== "admin") {
-      return NextResponse.redirect(
-        new URL("/dashboard", req.url)
-      );
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
   }
 
@@ -89,12 +96,11 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
-// Middleware matcher
+// -----------------------------
+// Matcher (IMPORTANT FIX HERE)
+// -----------------------------
 export const config = {
   matcher: [
-    /*
-     * Match all protected routes
-     */
     "/dashboard/:path*",
     "/workouts/:path*",
     "/diet/:path*",
@@ -103,10 +109,6 @@ export const config = {
     "/goals/:path*",
     "/profile/:path*",
     "/admin/:path*",
-
-    /*
-     * Match auth pages
-     */
     "/auth/login",
     "/auth/register",
   ],
