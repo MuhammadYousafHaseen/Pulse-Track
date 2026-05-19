@@ -41,7 +41,8 @@ const userSchema: Schema<IUser> = new Schema(
 
     password: {
       type: String,
-      required: [true, "Password is required"],
+      required: true,
+      select: false,
     },
 
     image: {

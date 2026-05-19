@@ -51,8 +51,12 @@ const Page = () => {
         return;
       }
 
-      if (result.error) {
-        notify(result.error || "Invalid email or password", "error");
+      if (result?.error) {
+        notify(
+          "Invalid email or password",
+          "error"
+        );
+
         return;
       }
 
