@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { useWatch } from "react-hook-form";
+import { useEffect, useRef, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useDebounceCallback } from "usehooks-ts";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -34,6 +32,10 @@ const Page = () => {
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const lastCheckedRef = useRef("");
+
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -41,60 +43,83 @@ const Page = () => {
       email: "",
       password: "",
       gender: "male",
-      age: undefined,
-      height: undefined,
-      currentWeight: undefined,
+      age: 0,
+      height: 0,
+      currentWeight: 0,
     },
   });
 
-const username = useWatch({
-  control: form.control,
-  name: "name",
-});
+  const username = useWatch({
+    control: form.control,
+    name: "name",
+  });
 
- const debouncedCheck = useDebounceCallback(async (value: string) => {
-  if (!value || value.length < 3) return;
+  // ✅ username checker
+  const checkUsername = async (value: string) => {
+    if (!value || value.length < 3) {
+      setUsernameMessage("");
+      return;
+    }
 
-  setCheckingUsername(true);
-
-  try {
-    const res = await axios.get(
-      `/api/check-username-unique?name=${value}`
-    );
-
-    setUsernameMessage(res.data.message);
-  } catch (error) {
-    const axiosError = error as AxiosError<ApiResponse>;
-
-    setUsernameMessage(
-      axiosError.response?.data.message || "Error checking username"
-    );
-  } finally {
-    setCheckingUsername(false);
-  }
-}, 500);
-
-useEffect(() => {
-  if (!username) return;
-  debouncedCheck(username);
-}, [username, debouncedCheck]);
-  const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
-    setSubmitting(true);
+    if (lastCheckedRef.current === value) return;
 
     try {
+      setCheckingUsername(true);
+
+      if (abortRef.current) abortRef.current.abort();
+
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      const res = await axios.get(
+        `/api/check-username-unique?name=${value}`,
+        { signal: controller.signal }
+      );
+
+      lastCheckedRef.current = value;
+      setUsernameMessage(res.data.message);
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiResponse>;
+
+      if (axiosError.name === "CanceledError") return;
+
+      setUsernameMessage(
+        axiosError.response?.data.message || "Error checking username"
+      );
+    } finally {
+      setCheckingUsername(false);
+    }
+  };
+
+  // debounce only trigger
+  useEffect(() => {
+    if (!username) return;
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(() => {
+      checkUsername(username);
+    }, 2000);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [username]);
+
+  const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
+    try {
+      setSubmitting(true);
+
       const res = await axios.post<ApiResponse>(
         "/api/user/signup",
         data
       );
 
-      // ✅ SUCCESS NOTIFY (replaced toast)
       notify(res.data.message || "Account created successfully", "success");
-
       router.push("/login");
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
 
-      // ❌ ERROR NOTIFY (replaced toast)
       notify(
         axiosError.response?.data.message || "Signup failed",
         "error"
@@ -107,7 +132,7 @@ useEffect(() => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-black via-blue-950 to-green-950 px-4">
 
-      <div className="w-full max-w-md p-6 rounded-2xl border border-blue-500/20 bg-black/40 backdrop-blur-xl">
+      <div className="w-full max-w-lg p-6 rounded-2xl border border-blue-500/20 bg-black/40 backdrop-blur-xl">
 
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-white">
@@ -119,87 +144,100 @@ useEffect(() => {
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 
-            {/* Username */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-blue-300">
-                    Username
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="haseen_dev"
-                      className="bg-black/30 border-blue-500/30 text-white focus:ring-green-500"
-                    />
-                  </FormControl>
+            {/* NAME */}
+            <FormField name="name" control={form.control} render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="haseen_dev" />
+                </FormControl>
 
-                  {checkingUsername && (
-                    <p className="text-blue-400 text-xs">Checking...</p>
-                  )}
+                {checkingUsername && (
+                  <p className="text-xs text-blue-400">Checking...</p>
+                )}
 
-                  {usernameMessage && (
-                    <p
-                      className={`text-xs ${
-                        usernameMessage.includes("available")
-                          ? "text-green-400"
-                          : "text-red-400"
-                      }`}
-                    >
-                      {usernameMessage}
-                    </p>
-                  )}
+                {usernameMessage && (
+                  <p className="text-xs text-green-400">
+                    {usernameMessage}
+                  </p>
+                )}
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormMessage />
+              </FormItem>
+            )} />
 
-            {/* Email */}
-            <FormField
-              name="email"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-blue-300">Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      className="bg-black/30 border-blue-500/30 text-white"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* EMAIL */}
+            <FormField name="email" control={form.control} render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
 
-            {/* Password */}
-            <FormField
-              name="password"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-blue-300">Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      {...field}
-                      className="bg-black/30 border-blue-500/30 text-white"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* PASSWORD */}
+            <FormField name="password" control={form.control} render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input type="password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
 
+           
+
+            {/* GENDER */}
+            <FormField name="gender" control={form.control} render={({ field }) => (
+              <FormItem>
+                <FormLabel>Gender</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+              </FormItem>
+            )} />
+
+            {/* AGE */}
+            <FormField name="age" control={form.control} render={({ field }) => (
+              <FormItem>
+                <FormLabel>Age</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+              </FormItem>
+            )} />
+
+            {/* HEIGHT */}
+            <FormField name="height" control={form.control} render={({ field }) => (
+              <FormItem>
+                <FormLabel>Height (cm)</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+              </FormItem>
+            )} />
+
+            {/* CURRENT WEIGHT */}
+            <FormField name="currentWeight" control={form.control} render={({ field }) => (
+              <FormItem>
+                <FormLabel>Current Weight</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+              </FormItem>
+            )} />
+
+            
             {/* SUBMIT */}
             <Button
+              type="submit"
               disabled={submitting}
-              className="w-full bg-linear-to-r from-blue-600 to-green-500 text-white"
+              className="w-full bg-linear-to-r from-blue-600 to-green-500"
             >
               {submitting ? (
                 <Loader2 className="animate-spin w-4 h-4" />
@@ -211,7 +249,7 @@ useEffect(() => {
           </form>
         </Form>
 
-        <p className="text-center text-gray-400 text-sm mt-4">
+        <p className="text-center text-sm text-gray-400 mt-4">
           Already have an account?{" "}
           <Link href="/login" className="text-green-400">
             Login
