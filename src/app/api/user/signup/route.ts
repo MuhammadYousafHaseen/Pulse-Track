@@ -1,11 +1,14 @@
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/user.moldel";
+
 import bcrypt from "bcryptjs";
 
-export async function POST(request: Request) {
-  await dbConnect();
-
+export async function POST(
+  request: Request
+) {
   try {
+    await dbConnect();
+
     const body = await request.json();
 
     const {
@@ -24,12 +27,18 @@ export async function POST(request: Request) {
       waterGoal,
     } = body;
 
-    // Normalize inputs
-    const normalizedName = name.trim();
-    const normalizedEmail = email.trim().toLowerCase();
+    // -----------------------------
+    // Normalize ONLY email
+    // -----------------------------
 
+    const normalizedEmail = email
+      .trim()
+      .toLowerCase();
 
-    // Required fields validation
+    // -----------------------------
+    // Required validation
+    // -----------------------------
+
     if (
       !name ||
       !email ||
@@ -43,77 +52,119 @@ export async function POST(request: Request) {
         {
           success: false,
           message:
-            "Name, email, password, gender, age, height and currentWeight are required",
+            "Please fill all required fields",
         },
-        { status: 400 }
+        {
+          status: 400,
+        }
       );
     }
 
+    // -----------------------------
     // Password validation
+    // -----------------------------
+
     if (password.length < 6) {
       return Response.json(
         {
           success: false,
-          message: "Password must be at least 6 characters long",
+          message:
+            "Password must be at least 6 characters",
         },
-        { status: 400 }
+        {
+          status: 400,
+        }
       );
     }
 
-    // Existing user check
-    const existingUser = await User.findOne({ email });
+    // -----------------------------
+    // Existing user
+    // -----------------------------
+
+    const existingUser =
+      await User.findOne({
+        email: normalizedEmail,
+      });
 
     if (existingUser) {
       return Response.json(
         {
           success: false,
-          message: "User already exists",
+          message:
+            "Email already registered",
         },
-        { status: 409 }
+        {
+          status: 409,
+        }
       );
     }
 
+    // -----------------------------
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // -----------------------------
 
+    const hashedPassword =
+      await bcrypt.hash(password, 10);
+
+    // -----------------------------
     // BMI Calculation
-    let bmi: number | undefined = undefined;
+    // -----------------------------
+
+    let bmi: number | undefined =
+      undefined;
 
     if (height > 0 && currentWeight > 0) {
-      const heightInMeters = height / 100;
+      const heightInMeters =
+        height / 100;
 
       bmi = parseFloat(
-        (currentWeight / (heightInMeters * heightInMeters)).toFixed(2)
+        (
+          currentWeight /
+          (heightInMeters *
+            heightInMeters)
+        ).toFixed(2)
       );
     }
 
-    // Create user
+    // -----------------------------
+    // Create User
+    // -----------------------------
+
     const newUser = await User.create({
-      name: normalizedName,
-      email : normalizedEmail,
+      name: name.trim(),
+
+      email: normalizedEmail,
+
       password: hashedPassword,
 
       image: image || undefined,
 
       role: "user",
 
-      gender,
-      age,
-
       isBlocked: false,
 
+      gender,
+
+      age,
+
       height,
+
       currentWeight,
 
-      targetWeight: targetWeight || undefined,
+      targetWeight:
+        targetWeight || undefined,
 
       bmi,
 
-      activityLevel: activityLevel || undefined,
+      activityLevel:
+        activityLevel || undefined,
 
-      goalType: goalType || undefined,
+      goalType:
+        goalType || undefined,
 
-      dailyCalorieGoal: dailyCalorieGoal || undefined,
+      dailyCalorieGoal:
+        dailyCalorieGoal ||
+        undefined,
 
       waterGoal: waterGoal || 2000,
     });
@@ -121,26 +172,38 @@ export async function POST(request: Request) {
     return Response.json(
       {
         success: true,
-        message: "User registered successfully",
+        message:
+          "Account created successfully",
 
         user: {
           id: newUser._id,
+
           name: newUser.name,
+
           email: newUser.email,
+
           role: newUser.role,
         },
       },
-      { status: 201 }
+      {
+        status: 201,
+      }
     );
   } catch (error) {
-    console.error("Signup Error:", error);
+    console.error(
+      "Signup Error:",
+      error
+    );
 
     return Response.json(
       {
         success: false,
-        message: "Something went wrong while registering user",
+        message:
+          "Something went wrong during signup",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

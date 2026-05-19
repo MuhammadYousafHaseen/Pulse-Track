@@ -7,51 +7,69 @@ export const nameValidation = z
   .string()
   .min(3, "Username must be at least 3 characters long")
   .max(30, "Username must be at most 30 characters long")
-  .regex(/^[a-zA-Z0-9_]+$/, {
-    message: "Only letters, numbers and underscores allowed (no spaces)",
+  .regex(/^[A-Za-z0-9_]+$/, {
+    message:
+      "Only letters, numbers and underscores allowed",
   });
 
-/**
- * Signup schema (FITNESS APP VERSION)
- */
 export const signUpSchema = z.object({
   name: nameValidation,
 
-  email: z.string().email("Invalid email address"),
+  email: z.string().email("Invalid email"),
 
   password: z
     .string()
-    .min(6, "Password must be at least 6 characters long"),
+    .min(6, "Password must be at least 6 characters"),
 
   image: z.string().url().optional(),
 
-  gender: z.enum(["male", "female", "other"]),
+  gender: z.enum([
+    "male",
+    "female",
+    "other",
+  ]),
 
-  age: z
+  age: z.coerce
     .number()
-    .int("Age must be a whole number")
-    .min(10, "Age must be at least 10")
-    .max(120, "Age must be realistic"),
+    .min(10)
+    .max(120),
 
-  height: z
+  height: z.coerce
     .number()
-    .positive("Height must be greater than 0"),
+    .positive(),
 
-  currentWeight: z
+  currentWeight: z.coerce
     .number()
-    .positive("Weight must be greater than 0"),
+    .positive(),
 
-  targetWeight: z.number().positive().optional(),
+  targetWeight: z.coerce
+    .number()
+    .positive()
+    .optional(),
 
   activityLevel: z
-    .enum(["beginner", "intermediate", "advanced"])
+    .enum([
+      "beginner",
+      "intermediate",
+      "advanced",
+    ])
     .optional(),
 
   goalType: z
-    .enum(["weight_loss", "muscle_gain", "maintain_fitness"])
+    .enum([
+      "weight_loss",
+      "muscle_gain",
+      "maintain_fitness",
+    ])
     .optional(),
 
-  dailyCalorieGoal: z.number().positive().optional(),
+  dailyCalorieGoal: z.coerce
+    .number()
+    .positive()
+    .optional(),
 
-  waterGoal: z.number().positive().optional(),
+  waterGoal: z.coerce
+    .number()
+    .positive()
+    .optional(),
 });

@@ -1,14 +1,29 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 import Link from "next/link";
 
+import axios, { AxiosError } from "axios";
+
+import { useRouter } from "next/navigation";
+
+import {
+  useForm,
+  SubmitHandler,
+} from "react-hook-form";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { z } from "zod";
+
+import { Loader2 } from "lucide-react";
+
 import { signUpSchema } from "@/schemas/signUpSchema";
+
 import type { ApiResponse } from "@/types/ApiResponse";
+
+import { notify } from "@/lib/notify";
 
 import {
   Form,
@@ -20,108 +35,92 @@ import {
 } from "@/components/ui/form";
 
 import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { notify } from "@/lib/notify";
-import { z } from "zod";
+
+// ========================================
+// TYPES
+// ========================================
+
+type SignUpFormData = z.infer<
+  typeof signUpSchema
+>;
+
+// ========================================
+// COMPONENT
+// ========================================
 
 const Page = () => {
   const router = useRouter();
 
-  const [usernameMessage, setUsernameMessage] = useState("");
-  const [checkingUsername, setCheckingUsername] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] =
+    useState(false);
 
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
-  const lastCheckedRef = useRef("");
+  // ========================================
+  // FORM
+  // ========================================
 
-  const form = useForm<z.infer<typeof signUpSchema>>({
+  const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
+
     defaultValues: {
       name: "",
+
       email: "",
+
       password: "",
+
       gender: "male",
-      age: 0,
-      height: 0,
-      currentWeight: 0,
+
+      age: 18,
+
+      height: 170,
+
+      currentWeight: 70,
+
+      targetWeight: 65,
+
+      activityLevel: "beginner",
+
+      goalType:
+        "maintain_fitness",
+
+      dailyCalorieGoal: 2000,
+
+      waterGoal: 2000,
     },
   });
 
-  const username = useWatch({
-    control: form.control,
-    name: "name",
-  });
+  // ========================================
+  // SUBMIT
+  // ========================================
 
-  // ✅ username checker
-  const checkUsername = async (value: string) => {
-    if (!value || value.length < 3) {
-      setUsernameMessage("");
-      return;
-    }
-
-    if (lastCheckedRef.current === value) return;
-
-    try {
-      setCheckingUsername(true);
-
-      if (abortRef.current) abortRef.current.abort();
-
-      const controller = new AbortController();
-      abortRef.current = controller;
-
-      const res = await axios.get(
-        `/api/check-username-unique?name=${value}`,
-        { signal: controller.signal }
-      );
-
-      lastCheckedRef.current = value;
-      setUsernameMessage(res.data.message);
-    } catch (error) {
-      const axiosError = error as AxiosError<ApiResponse>;
-
-      if (axiosError.name === "CanceledError") return;
-
-      setUsernameMessage(
-        axiosError.response?.data.message || "Error checking username"
-      );
-    } finally {
-      setCheckingUsername(false);
-    }
-  };
-
-  // debounce only trigger
-  useEffect(() => {
-    if (!username) return;
-
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-
-    debounceRef.current = setTimeout(() => {
-      checkUsername(username);
-    }, 2000);
-
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [username]);
-
-  const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
+  const onSubmit: SubmitHandler<
+    SignUpFormData
+  > = async (data) => {
     try {
       setSubmitting(true);
 
-      const res = await axios.post<ApiResponse>(
-        "/api/user/signup",
-        data
-      );
-
-      notify(res.data.message || "Account created successfully", "success");
-      router.push("/login");
-    } catch (error) {
-      const axiosError = error as AxiosError<ApiResponse>;
+      const response =
+        await axios.post<ApiResponse>(
+          "/api/user/signup",
+          data
+        );
 
       notify(
-        axiosError.response?.data.message || "Signup failed",
+        response.data.message ||
+          "Account created successfully",
+        "success"
+      );
+
+      router.push("/auth/login");
+    } catch (error) {
+      const axiosError =
+        error as AxiosError<ApiResponse>;
+
+      notify(
+        axiosError.response?.data
+          ?.message || "Signup failed",
         "error"
       );
     } finally {
@@ -129,133 +128,529 @@ const Page = () => {
     }
   };
 
+  // ========================================
+  // JSX
+  // ========================================
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-black via-blue-950 to-green-950 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-black via-blue-950 to-green-950 px-4 py-10">
+      <div className="w-full max-w-6xl rounded-3xl border border-blue-500/20 bg-black/40 p-8 backdrop-blur-xl">
+        {/* HEADER */}
 
-      <div className="w-full max-w-lg p-6 rounded-2xl border border-blue-500/20 bg-black/40 backdrop-blur-xl">
-
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-white">
+        <div className="mb-10 text-center">
+          <h1 className="text-4xl font-bold text-white">
             Create Account
           </h1>
-          <p className="text-blue-300 text-sm">
-            Fitness AI onboarding 🚀
+
+          <p className="mt-2 text-sm text-blue-300">
+            Start your fitness journey 🚀
           </p>
         </div>
 
+        {/* FORM */}
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(
+              onSubmit
+            )}
+            className="space-y-6"
+          >
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              {/* USERNAME */}
 
-            {/* NAME */}
-            <FormField name="name" control={form.control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="haseen_dev" />
-                </FormControl>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">
+                      Username
+                    </FormLabel>
 
-                {checkingUsername && (
-                  <p className="text-xs text-blue-400">Checking...</p>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        value={
+                          field.value ?? ""
+                        }
+                        placeholder="Haseen_Dev"
+                        className="border-blue-500/20 bg-black/30 text-white"
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
 
-                {usernameMessage && (
-                  <p className="text-xs text-green-400">
-                    {usernameMessage}
-                  </p>
+              {/* EMAIL */}
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">
+                      Email
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        {...field}
+                        value={
+                          field.value ?? ""
+                        }
+                        type="email"
+                        placeholder="you@example.com"
+                        className="border-blue-500/20 bg-black/30 text-white"
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
 
-                <FormMessage />
-              </FormItem>
-            )} />
+              {/* PASSWORD */}
 
-            {/* EMAIL */}
-            <FormField name="email" control={form.control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">
+                      Password
+                    </FormLabel>
 
-            {/* PASSWORD */}
-            <FormField name="password" control={form.control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input type="password" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+                    <FormControl>
+                      <Input
+                        {...field}
+                        value={
+                          field.value ?? ""
+                        }
+                        type="password"
+                        placeholder="********"
+                        className="border-blue-500/20 bg-black/30 text-white"
+                      />
+                    </FormControl>
 
-           
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* GENDER */}
-            <FormField name="gender" control={form.control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Gender</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-              </FormItem>
-            )} />
+              {/* GENDER */}
 
-            {/* AGE */}
-            <FormField name="age" control={form.control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Age</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-              </FormItem>
-            )} />
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">
+                      Gender
+                    </FormLabel>
 
-            {/* HEIGHT */}
-            <FormField name="height" control={form.control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Height (cm)</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-              </FormItem>
-            )} />
+                    <FormControl>
+                      <select
+                        aria-label="Select gender"
+                        title="Gender"
+                        value={
+                          field.value ?? ""
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value
+                          )
+                        }
+                        className="h-10 w-full rounded-md border border-blue-500/20 bg-black/30 px-3 text-white outline-none"
+                      >
+                        <option value="male">
+                          Male
+                        </option>
 
-            {/* CURRENT WEIGHT */}
-            <FormField name="currentWeight" control={form.control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Current Weight</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-              </FormItem>
-            )} />
+                        <option value="female">
+                          Female
+                        </option>
 
-            
-            {/* SUBMIT */}
+                        <option value="other">
+                          Other
+                        </option>
+                      </select>
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* AGE */}
+
+              <FormField
+                control={form.control}
+                name="age"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">
+                      Age
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        type="number"
+                        value={
+                          field.value ?? ""
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value ===
+                              ""
+                              ? undefined
+                              : Number(
+                                  e.target
+                                    .value
+                                )
+                          )
+                        }
+                        className="border-blue-500/20 bg-black/30 text-white"
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* HEIGHT */}
+
+              <FormField
+                control={form.control}
+                name="height"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">
+                      Height (cm)
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        type="number"
+                        value={
+                          field.value ?? ""
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value ===
+                              ""
+                              ? undefined
+                              : Number(
+                                  e.target
+                                    .value
+                                )
+                          )
+                        }
+                        className="border-blue-500/20 bg-black/30 text-white"
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* CURRENT WEIGHT */}
+
+              <FormField
+                control={form.control}
+                name="currentWeight"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">
+                      Current Weight
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        type="number"
+                        value={
+                          field.value ?? ""
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value ===
+                              ""
+                              ? undefined
+                              : Number(
+                                  e.target
+                                    .value
+                                )
+                          )
+                        }
+                        className="border-blue-500/20 bg-black/30 text-white"
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* TARGET WEIGHT */}
+
+              <FormField
+                control={form.control}
+                name="targetWeight"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">
+                      Target Weight
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        type="number"
+                        value={
+                          field.value ?? ""
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value ===
+                              ""
+                              ? undefined
+                              : Number(
+                                  e.target
+                                    .value
+                                )
+                          )
+                        }
+                        className="border-blue-500/20 bg-black/30 text-white"
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* ACTIVITY LEVEL */}
+
+              <FormField
+                control={form.control}
+                name="activityLevel"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">
+                      Activity Level
+                    </FormLabel>
+
+                    <FormControl>
+                      <select
+                        aria-label="Select activity level"
+                        title="Activity Level"
+                        value={
+                          field.value ?? ""
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value
+                          )
+                        }
+                        className="h-10 w-full rounded-md border border-blue-500/20 bg-black/30 px-3 text-white outline-none"
+                      >
+                        <option value="beginner">
+                          Beginner
+                        </option>
+
+                        <option value="intermediate">
+                          Intermediate
+                        </option>
+
+                        <option value="advanced">
+                          Advanced
+                        </option>
+                      </select>
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* GOAL TYPE */}
+
+              <FormField
+                control={form.control}
+                name="goalType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">
+                      Goal Type
+                    </FormLabel>
+
+                    <FormControl>
+                      <select
+                        aria-label="Select goal type"
+                        title="Goal Type"
+                        value={
+                          field.value ?? ""
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value
+                          )
+                        }
+                        className="h-10 w-full rounded-md border border-blue-500/20 bg-black/30 px-3 text-white outline-none"
+                      >
+                        <option value="weight_loss">
+                          Weight Loss
+                        </option>
+
+                        <option value="muscle_gain">
+                          Muscle Gain
+                        </option>
+
+                        <option value="maintain_fitness">
+                          Maintain Fitness
+                        </option>
+                      </select>
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* DAILY CALORIES */}
+
+              <FormField
+                control={form.control}
+                name="dailyCalorieGoal"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">
+                      Daily Calories
+                    </FormLabel>
+
+                    <FormControl>
+                      <select
+                        aria-label="Select daily calorie goal"
+                        title="Daily Calorie Goal"
+                        value={
+                          field.value ?? ""
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            Number(
+                              e.target.value
+                            )
+                          )
+                        }
+                        className="h-10 w-full rounded-md border border-blue-500/20 bg-black/30 px-3 text-white outline-none"
+                      >
+                        <option value={1500}>
+                          1500 Calories
+                        </option>
+
+                        <option value={2000}>
+                          2000 Calories
+                        </option>
+
+                        <option value={2500}>
+                          2500 Calories
+                        </option>
+
+                        <option value={3000}>
+                          3000 Calories
+                        </option>
+                      </select>
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* WATER GOAL */}
+
+              <FormField
+                control={form.control}
+                name="waterGoal"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-200">
+                      Water Goal
+                    </FormLabel>
+
+                    <FormControl>
+                      <select
+                        aria-label="Select water goal"
+                        title="Water Goal"
+                        value={
+                          field.value ?? ""
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            Number(
+                              e.target.value
+                            )
+                          )
+                        }
+                        className="h-10 w-full rounded-md border border-blue-500/20 bg-black/30 px-3 text-white outline-none"
+                      >
+                        <option value={1000}>
+                          1000 ml
+                        </option>
+
+                        <option value={2000}>
+                          2000 ml
+                        </option>
+
+                        <option value={3000}>
+                          3000 ml
+                        </option>
+
+                        <option value={4000}>
+                          4000 ml
+                        </option>
+                      </select>
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* SUBMIT BUTTON */}
+
             <Button
               type="submit"
               disabled={submitting}
-              className="w-full bg-linear-to-r from-blue-600 to-green-500"
+              className="w-full cursor-pointer bg-gradient-to-r from-blue-600 to-green-500 text-white hover:opacity-90"
             >
               {submitting ? (
-                <Loader2 className="animate-spin w-4 h-4" />
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating Account...
+                </>
               ) : (
                 "Create Account"
               )}
             </Button>
-
           </form>
         </Form>
 
-        <p className="text-center text-sm text-gray-400 mt-4">
+        {/* FOOTER */}
+
+        <p className="mt-6 text-center text-sm text-gray-400">
           Already have an account?{" "}
-          <Link href="/login" className="text-green-400">
+          <Link
+            href="/auth/login"
+            className="text-green-400 hover:underline"
+          >
             Login
           </Link>
         </p>
-
       </div>
     </div>
   );
