@@ -65,7 +65,7 @@ export default function Footer() {
     <footer className="relative overflow-hidden border-t border-blue-500/20 bg-black text-gray-300">
 
       {/* BACKGROUND EFFECT */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.15),transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(34,197,94,0.15),transparent_30%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.15),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(34,197,94,0.15),transparent_30%)]" />
 
       <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
 
@@ -88,7 +88,7 @@ export default function Footer() {
                 className="h-12 w-12 object-contain"
               />
 
-              <span className="bg-gradient-to-r from-blue-500 via-cyan-400 to-green-400 bg-clip-text text-2xl font-bold text-transparent">
+              <span className="bg-linear-to-r from-blue-500 via-cyan-400 to-green-400 bg-clip-text text-2xl font-bold text-transparent">
                 Pulse Track
               </span>
             </div>
