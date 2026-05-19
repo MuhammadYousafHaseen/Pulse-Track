@@ -158,7 +158,7 @@ export default function Navbar() {
 
             <motion.span
               whileHover={{ scale: 1.05 }}
-              className="bg-gradient-to-r from-blue-500 via-cyan-400 to-green-400 bg-clip-text text-2xl font-bold text-transparent"
+              className="bg-linear-to-r from-blue-500 via-cyan-400 to-green-400 bg-clip-text text-2xl font-bold text-transparent"
             >
               Pulse Track
             </motion.span>
@@ -188,7 +188,7 @@ export default function Navbar() {
                     href={link.href}
                     className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
                       isActive
-                        ? "bg-gradient-to-r from-blue-600 to-green-500 text-white"
+                        ? "bg-linear-to-r from-blue-600 to-green-500 text-white"
                         : "text-gray-300 hover:bg-blue-500/10 hover:text-green-400"
                     }`}
                   >
@@ -246,7 +246,7 @@ export default function Navbar() {
                 </Link>
 
                 <Link href="/auth/register">
-                  <Button className="rounded-full bg-gradient-to-r from-blue-600 to-green-500 text-white">
+                  <Button className="rounded-full bg-linear-to-r from-blue-600 to-green-500 text-white">
                     Get Started
                   </Button>
                 </Link>

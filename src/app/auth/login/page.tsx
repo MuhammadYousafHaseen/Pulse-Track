@@ -138,7 +138,7 @@ const Page = () => {
             {/* SUBMIT */}
             <Button
               disabled={isSubmitting}
-              className="w-full bg-linear-to-r from-blue-600 to-green-500 text-white font-semibold"
+              className="w-full bg-linear-to-r cursor-pointer from-blue-600 to-green-500 text-white font-semibold"
             >
               {isSubmitting ? (
                 <>
@@ -158,7 +158,7 @@ const Page = () => {
           Don’t have an account?{" "}
           <Link
             href="/auth/register"
-            className="text-green-400 hover:underline"
+            className="text-green-400 hover:underline cursor-pointer"
           >
             Sign Up
           </Link>
