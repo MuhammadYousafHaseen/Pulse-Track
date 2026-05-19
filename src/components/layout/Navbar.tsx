@@ -32,21 +32,21 @@ type NavLink = {
 
 export default function Navbar() {
   const pathname = usePathname();
+
   const router = useRouter();
 
-  const { data: session, status } = useSession();
+  const { data: session, status } =
+    useSession();
 
   const user = session?.user;
 
-  // -----------------------------------------
-  // STATES
-  // -----------------------------------------
   const [isMobileMenuOpen, setIsMobileMenuOpen] =
     useState(false);
 
   // -----------------------------------------
-  // HANDLE BLOCKED USER
+  // BLOCKED USER
   // -----------------------------------------
+
   if (
     user &&
     "isBlocked" in user &&
@@ -63,9 +63,16 @@ export default function Navbar() {
   // -----------------------------------------
   // LINKS
   // -----------------------------------------
+
   const publicLinks: NavLink[] = [
-    { label: "Features", href: "#features" },
-    { label: "About", href: "#about" },
+    {
+      label: "Features",
+      href: "#features",
+    },
+    {
+      label: "About",
+      href: "#about",
+    },
   ];
 
   const protectedLinks: NavLink[] = [
@@ -98,10 +105,11 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed left-0 top-0 z-50 w-full border-b border-blue-500/20 bg-black/50 backdrop-blur-2xl">
+      {/* NAVBAR */}
+      <nav className="fixed left-0 top-0 z-50 w-full border-b border-blue-500/20 bg-black/70 backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
 
-          {/* LEFT */}
+          {/* LOGO */}
           <Link
             href="/"
             className="flex items-center gap-3"
@@ -109,14 +117,15 @@ export default function Navbar() {
             <Image
               src="/images/logo.png"
               alt="Pulse Track Logo"
-              width={42}
-              height={42}
+              width={44}
+              height={44}
               priority
+              className="rounded-full"
             />
 
             <motion.span
               whileHover={{ scale: 1.05 }}
-              className="bg-linear-to-r from-blue-500 via-cyan-400 to-green-400 bg-clip-text text-2xl font-bold text-transparent"
+              className="bg-linear-to-r from-cyan-400 via-blue-500 to-green-400 bg-clip-text text-2xl font-bold text-transparent"
             >
               Pulse Track
             </motion.span>
@@ -161,7 +170,7 @@ export default function Navbar() {
               user?.role === "admin" && (
                 <Link
                   href="/admin"
-                  className="flex items-center gap-2 rounded-full bg-red-500/10 px-4 py-2 text-sm text-red-400"
+                  className="flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-400"
                 >
                   <ShieldCheck size={18} />
                   Admin
@@ -181,22 +190,27 @@ export default function Navbar() {
                     callbackUrl: "/auth/login",
                   })
                 }
-                className="rounded-full bg-red-500 text-white"
+                className="rounded-full bg-red-500 text-white hover:bg-red-600"
               >
                 <LogOut size={18} />
                 Logout
               </Button>
             ) : (
-              <div className="flex gap-3">
+              <div className="flex items-center gap-3">
 
+                {/* LOGIN BUTTON FIXED */}
                 <Link href="/auth/login">
-                  <Button variant="ghost">
+                  <Button
+                    variant="outline"
+                    className="border-blue-500/30 bg-white/5 text-white hover:bg-blue-500/10 hover:text-green-400"
+                  >
                     Login
                   </Button>
                 </Link>
 
+                {/* REGISTER */}
                 <Link href="/auth/register">
-                  <Button className="rounded-full bg-linear-to-r from-blue-600 to-green-500 text-white">
+                  <Button className="rounded-full bg-linear-to-r from-blue-600 to-green-500 text-white hover:opacity-90">
                     Get Started
                   </Button>
                 </Link>
@@ -205,7 +219,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* MOBILE */}
+          {/* MOBILE MENU BUTTON */}
           <div className="flex items-center gap-3 md:hidden">
 
             <button
@@ -214,12 +228,18 @@ export default function Navbar() {
                   (prev) => !prev
                 )
               }
-              className="rounded-full border border-blue-500/20 bg-white/5 p-2 transition"
+              className="rounded-full border border-blue-500/20 bg-slate-900 p-2 text-white shadow-lg transition hover:bg-slate-800"
             >
               {isMobileMenuOpen ? (
-                <X size={22} />
+                <X
+                  size={22}
+                  className="text-white"
+                />
               ) : (
-                <Menu size={22} />
+                <Menu
+                  size={22}
+                  className="text-white"
+                />
               )}
             </button>
 
@@ -238,7 +258,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={closeMobileMenu}
-              className="fixed inset-0 z-40 bg-black/60"
+              className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm"
             />
 
             {/* SIDEBAR */}
@@ -247,7 +267,7 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ duration: 0.25 }}
-              className="fixed left-0 top-0 z-50 flex h-full w-[80%] flex-col bg-slate-950 p-6"
+              className="fixed left-0 top-0 z-50 flex h-full w-[82%] flex-col border-r border-blue-500/20 bg-slate-950 p-6 shadow-2xl"
             >
 
               {/* CLOSE */}
@@ -255,10 +275,11 @@ export default function Navbar() {
                 onClick={closeMobileMenu}
                 className="flex items-center gap-2 text-white"
               >
-                Close <X size={24} />
+                Close
+                <X size={24} />
               </button>
 
-              {/* LINKS */}
+              {/* MOBILE LINKS */}
               <div className="mt-10 flex flex-col gap-4">
 
                 {!session &&
@@ -267,7 +288,7 @@ export default function Navbar() {
                       key={link.href}
                       href={link.href}
                       onClick={closeMobileMenu}
-                      className="text-gray-300 transition hover:text-green-400"
+                      className="rounded-xl px-4 py-3 text-gray-300 transition hover:bg-blue-500/10 hover:text-green-400"
                     >
                       {link.label}
                     </Link>
@@ -279,7 +300,7 @@ export default function Navbar() {
                       key={link.href}
                       href={link.href}
                       onClick={closeMobileMenu}
-                      className="flex items-center gap-2 text-gray-300 transition hover:text-green-400"
+                      className="flex items-center gap-3 rounded-xl px-4 py-3 text-gray-300 transition hover:bg-blue-500/10 hover:text-green-400"
                     >
                       {link.icon}
                       {link.label}
@@ -291,7 +312,7 @@ export default function Navbar() {
                     <Link
                       href="/admin"
                       onClick={closeMobileMenu}
-                      className="flex items-center gap-2 text-red-400"
+                      className="flex items-center gap-2 rounded-xl bg-red-500/10 px-4 py-3 text-red-400"
                     >
                       <ShieldCheck size={18} />
                       Admin
@@ -300,7 +321,7 @@ export default function Navbar() {
 
               </div>
 
-              {/* BUTTONS */}
+              {/* MOBILE BUTTONS */}
               <div className="mt-auto pt-10">
 
                 {session ? (
@@ -311,7 +332,7 @@ export default function Navbar() {
                           "/auth/login",
                       })
                     }
-                    className="w-full bg-red-500"
+                    className="w-full bg-red-500 text-white hover:bg-red-600"
                   >
                     <LogOut size={18} />
                     Logout
@@ -320,6 +341,8 @@ export default function Navbar() {
                   <div className="flex flex-col gap-3">
 
                     <Button
+                      variant="outline"
+                      className="border-blue-500/30 bg-white/5 text-white hover:bg-blue-500/10"
                       onClick={() =>
                         router.push(
                           "/auth/login"
@@ -330,6 +353,7 @@ export default function Navbar() {
                     </Button>
 
                     <Button
+                      className="bg-linear-to-r from-blue-600 to-green-500 text-white"
                       onClick={() =>
                         router.push(
                           "/auth/register"
