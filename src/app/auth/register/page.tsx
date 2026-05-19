@@ -42,7 +42,7 @@ import { Button } from "@/components/ui/button";
 // TYPES
 // ========================================
 
-type SignUpFormData = z.infer<
+type SignUpFormData = z.output<
   typeof signUpSchema
 >;
 
@@ -60,7 +60,11 @@ const Page = () => {
   // FORM
   // ========================================
 
-  const form = useForm<SignUpFormData>({
+  const form = useForm<
+    z.input<typeof signUpSchema>,
+    unknown,
+    z.output<typeof signUpSchema>
+  >({
     resolver: zodResolver(signUpSchema),
 
     defaultValues: {
@@ -133,7 +137,7 @@ const Page = () => {
   // ========================================
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-black via-blue-950 to-green-950 px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-black via-blue-950 to-green-950 px-4 py-10">
       <div className="w-full max-w-6xl rounded-3xl border border-blue-500/20 bg-black/40 p-8 backdrop-blur-xl">
         {/* HEADER */}
 
@@ -287,39 +291,37 @@ const Page = () => {
               {/* AGE */}
 
               <FormField
-                control={form.control}
-                name="age"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-blue-200">
-                      Age
-                    </FormLabel>
+  control={form.control}
+  name="age"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel className="text-blue-200">
+        Age
+      </FormLabel>
 
-                    <FormControl>
-                      <Input
-                        type="number"
-                        value={
-                          field.value ?? ""
-                        }
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ===
-                              ""
-                              ? undefined
-                              : Number(
-                                  e.target
-                                    .value
-                                )
-                          )
-                        }
-                        className="border-blue-500/20 bg-black/30 text-white"
-                      />
-                    </FormControl>
+      <FormControl>
+        <Input
+          type="number"
+          value={
+            typeof field.value === "number"
+              ? field.value.toString()
+              : ""
+          }
+          onChange={(e) =>
+            field.onChange(
+              e.target.value === ""
+                ? undefined
+                : Number(e.target.value)
+            )
+          }
+          className="border-blue-500/20 bg-black/30 text-white"
+        />
+      </FormControl>
 
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
               {/* HEIGHT */}
 
@@ -335,18 +337,16 @@ const Page = () => {
                     <FormControl>
                       <Input
                         type="number"
-                        value={
-                          field.value ?? ""
-                        }
+                       value={
+  typeof field.value === "number"
+    ? field.value.toString()
+    : ""
+}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value ===
-                              ""
-                              ? undefined
-                              : Number(
-                                  e.target
-                                    .value
-                                )
+                            Number(
+                              e.target.value
+                            )
                           )
                         }
                         className="border-blue-500/20 bg-black/30 text-white"
@@ -372,18 +372,16 @@ const Page = () => {
                     <FormControl>
                       <Input
                         type="number"
-                        value={
-                          field.value ?? ""
-                        }
+                       value={
+  typeof field.value === "number"
+    ? field.value.toString()
+    : ""
+}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value ===
-                              ""
-                              ? undefined
-                              : Number(
-                                  e.target
-                                    .value
-                                )
+                            Number(
+                              e.target.value
+                            )
                           )
                         }
                         className="border-blue-500/20 bg-black/30 text-white"
@@ -409,18 +407,16 @@ const Page = () => {
                     <FormControl>
                       <Input
                         type="number"
-                        value={
-                          field.value ?? ""
-                        }
+                       value={
+  typeof field.value === "number"
+    ? field.value.toString()
+    : ""
+}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value ===
-                              ""
-                              ? undefined
-                              : Number(
-                                  e.target
-                                    .value
-                                )
+                            Number(
+                              e.target.value
+                            )
                           )
                         }
                         className="border-blue-500/20 bg-black/30 text-white"
@@ -535,9 +531,11 @@ const Page = () => {
                       <select
                         aria-label="Select daily calorie goal"
                         title="Daily Calorie Goal"
-                        value={
-                          field.value ?? ""
-                        }
+                       value={
+  typeof field.value === "number"
+    ? field.value.toString()
+    : ""
+}
                         onChange={(e) =>
                           field.onChange(
                             Number(
@@ -585,9 +583,11 @@ const Page = () => {
                       <select
                         aria-label="Select water goal"
                         title="Water Goal"
-                        value={
-                          field.value ?? ""
-                        }
+                       value={
+  typeof field.value === "number"
+    ? field.value.toString()
+    : ""
+}
                         onChange={(e) =>
                           field.onChange(
                             Number(
@@ -626,7 +626,7 @@ const Page = () => {
             <Button
               type="submit"
               disabled={submitting}
-              className="w-full cursor-pointer bg-gradient-to-r from-blue-600 to-green-500 text-white hover:opacity-90"
+              className="w-full cursor-pointer bg-linear-to-r from-blue-600 to-green-500 text-white hover:opacity-90"
             >
               {submitting ? (
                 <>

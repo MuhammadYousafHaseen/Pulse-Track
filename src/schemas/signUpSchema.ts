@@ -1,27 +1,19 @@
 import { z } from "zod";
 
-/**
- * Username validation
- */
-export const nameValidation = z
-  .string()
-  .min(3, "Username must be at least 3 characters long")
-  .max(30, "Username must be at most 30 characters long")
-  .regex(/^[A-Za-z0-9_]+$/, {
-    message:
-      "Only letters, numbers and underscores allowed",
-  });
-
 export const signUpSchema = z.object({
-  name: nameValidation,
+  name: z
+    .string()
+    .min(2, "Name must be at least 2 characters"),
 
-  email: z.string().email("Invalid email"),
+  email: z
+    .string()
+    .email("Invalid email address"),
 
   password: z
     .string()
     .min(6, "Password must be at least 6 characters"),
 
-  image: z.string().url().optional(),
+  image: z.string().optional(),
 
   gender: z.enum([
     "male",
@@ -29,22 +21,26 @@ export const signUpSchema = z.object({
     "other",
   ]),
 
+  // ✅ FIXED
   age: z.coerce
     .number()
     .min(10)
-    .max(120),
+    .max(100),
 
   height: z.coerce
     .number()
-    .positive(),
+    .min(50)
+    .max(300),
 
   currentWeight: z.coerce
     .number()
-    .positive(),
+    .min(20)
+    .max(500),
 
   targetWeight: z.coerce
     .number()
-    .positive()
+    .min(20)
+    .max(500)
     .optional(),
 
   activityLevel: z
@@ -65,11 +61,13 @@ export const signUpSchema = z.object({
 
   dailyCalorieGoal: z.coerce
     .number()
-    .positive()
+    .min(1000)
+    .max(10000)
     .optional(),
 
   waterGoal: z.coerce
     .number()
-    .positive()
+    .min(500)
+    .max(10000)
     .optional(),
 });

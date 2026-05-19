@@ -29,7 +29,9 @@ const PROTECTED_ROUTES = [
   "/admin",
 ];
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
+  
+
   const { pathname } = req.nextUrl;
 
   // --------------------------------------------------

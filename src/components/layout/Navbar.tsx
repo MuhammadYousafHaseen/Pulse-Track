@@ -11,8 +11,6 @@ import { signOut, useSession } from "next-auth/react";
 import {
   Menu,
   X,
-  Sun,
-  Moon,
   LayoutDashboard,
   Dumbbell,
   Salad,
@@ -32,28 +30,6 @@ type NavLink = {
   icon?: React.ReactNode;
 };
 
-// -----------------------------------------
-// INITIAL THEME (NO useEffect)
-// -----------------------------------------
-const getInitialTheme = (): "dark" | "light" => {
-  if (typeof window === "undefined") return "dark";
-
-  const savedTheme = localStorage.getItem("theme");
-
-  if (savedTheme === "light" || savedTheme === "dark") {
-    document.documentElement.classList.toggle(
-      "dark",
-      savedTheme === "dark"
-    );
-
-    return savedTheme;
-  }
-
-  document.documentElement.classList.add("dark");
-
-  return "dark";
-};
-
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -65,29 +41,8 @@ export default function Navbar() {
   // -----------------------------------------
   // STATES
   // -----------------------------------------
-  const [theme, setTheme] = useState<"dark" | "light">(
-    getInitialTheme
-  );
-
   const [isMobileMenuOpen, setIsMobileMenuOpen] =
     useState(false);
-
-  // -----------------------------------------
-  // TOGGLE THEME
-  // -----------------------------------------
-  const toggleTheme = () => {
-    const newTheme =
-      theme === "dark" ? "light" : "dark";
-
-    setTheme(newTheme);
-
-    document.documentElement.classList.toggle(
-      "dark",
-      newTheme === "dark"
-    );
-
-    localStorage.setItem("theme", newTheme);
-  };
 
   // -----------------------------------------
   // HANDLE BLOCKED USER
@@ -143,11 +98,14 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 z-50 w-full border-b border-blue-500/20 bg-black/50 backdrop-blur-2xl">
+      <nav className="fixed left-0 top-0 z-50 w-full border-b border-blue-500/20 bg-black/50 backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
 
           {/* LEFT */}
-          <Link href="/" className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="flex items-center gap-3"
+          >
             <Image
               src="/images/logo.png"
               alt="Pulse Track Logo"
@@ -166,6 +124,7 @@ export default function Navbar() {
 
           {/* DESKTOP NAV */}
           <div className="hidden items-center gap-6 md:flex">
+
             {!session &&
               publicLinks.map((link) => (
                 <Link
@@ -212,16 +171,6 @@ export default function Navbar() {
 
           {/* RIGHT */}
           <div className="hidden items-center gap-4 md:flex">
-            <button
-              onClick={toggleTheme}
-              className="rounded-full border border-blue-500/20 bg-white/5 p-2 transition hover:scale-105"
-            >
-              {theme === "dark" ? (
-                <Sun size={20} />
-              ) : (
-                <Moon size={20} />
-              )}
-            </button>
 
             {status === "loading" ? (
               <div className="h-10 w-24 animate-pulse rounded-full bg-blue-500/20" />
@@ -239,6 +188,7 @@ export default function Navbar() {
               </Button>
             ) : (
               <div className="flex gap-3">
+
                 <Link href="/auth/login">
                   <Button variant="ghost">
                     Login
@@ -250,22 +200,13 @@ export default function Navbar() {
                     Get Started
                   </Button>
                 </Link>
+
               </div>
             )}
           </div>
 
           {/* MOBILE */}
           <div className="flex items-center gap-3 md:hidden">
-            <button
-              onClick={toggleTheme}
-              className="rounded-full border p-2"
-            >
-              {theme === "dark" ? (
-                <Sun size={18} />
-              ) : (
-                <Moon size={18} />
-              )}
-            </button>
 
             <button
               onClick={() =>
@@ -273,7 +214,7 @@ export default function Navbar() {
                   (prev) => !prev
                 )
               }
-              className="rounded-full border p-2"
+              className="rounded-full border border-blue-500/20 bg-white/5 p-2 transition"
             >
               {isMobileMenuOpen ? (
                 <X size={22} />
@@ -281,6 +222,7 @@ export default function Navbar() {
                 <Menu size={22} />
               )}
             </button>
+
           </div>
         </div>
       </nav>
@@ -289,6 +231,8 @@ export default function Navbar() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
+
+            {/* OVERLAY */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -297,6 +241,7 @@ export default function Navbar() {
               className="fixed inset-0 z-40 bg-black/60"
             />
 
+            {/* SIDEBAR */}
             <motion.div
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
@@ -304,14 +249,18 @@ export default function Navbar() {
               transition={{ duration: 0.25 }}
               className="fixed left-0 top-0 z-50 flex h-full w-[80%] flex-col bg-slate-950 p-6"
             >
+
+              {/* CLOSE */}
               <button
                 onClick={closeMobileMenu}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 text-white"
               >
                 Close <X size={24} />
               </button>
 
+              {/* LINKS */}
               <div className="mt-10 flex flex-col gap-4">
+
                 {!session &&
                   publicLinks.map((link) => (
                     <Link
@@ -348,9 +297,12 @@ export default function Navbar() {
                       Admin
                     </Link>
                   )}
+
               </div>
 
+              {/* BUTTONS */}
               <div className="mt-auto pt-10">
+
                 {session ? (
                   <Button
                     onClick={() =>
@@ -366,6 +318,7 @@ export default function Navbar() {
                   </Button>
                 ) : (
                   <div className="flex flex-col gap-3">
+
                     <Button
                       onClick={() =>
                         router.push(
@@ -385,8 +338,10 @@ export default function Navbar() {
                     >
                       Get Started
                     </Button>
+
                   </div>
                 )}
+
               </div>
             </motion.div>
           </>
