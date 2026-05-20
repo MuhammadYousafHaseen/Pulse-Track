@@ -1,9 +1,30 @@
 import { z } from "zod";
 
+// ========================================
+// USERNAME VALIDATION
+// ========================================
+
+export const nameValidation = z
+  .string()
+  .min(
+    2,
+    "Name must be at least 2 characters"
+  )
+  .max(
+    20,
+    "Name must not exceed 20 characters"
+  )
+  .regex(
+    /^[a-zA-Z0-9_ ]+$/,
+    "Name can only contain letters, numbers, spaces, and underscores"
+  );
+
+// ========================================
+// SIGNUP SCHEMA
+// ========================================
+
 export const signUpSchema = z.object({
-  name: z
-    .string()
-    .min(2, "Name must be at least 2 characters"),
+  name: nameValidation,
 
   email: z
     .string()
@@ -11,7 +32,10 @@ export const signUpSchema = z.object({
 
   password: z
     .string()
-    .min(6, "Password must be at least 6 characters"),
+    .min(
+      6,
+      "Password must be at least 6 characters"
+    ),
 
   image: z.string().optional(),
 
@@ -21,7 +45,6 @@ export const signUpSchema = z.object({
     "other",
   ]),
 
-  // ✅ FIXED
   age: z.coerce
     .number()
     .min(10)
