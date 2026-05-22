@@ -43,11 +43,12 @@ const links = [
 export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 hidden h-screen w-72 border-r border-cyan-500/10 bg-black/40 backdrop-blur-xl lg:flex lg:flex-col">
-      
       <div className="border-b border-cyan-500/10 p-6">
-        <h1 className="bg-linear-to-r from-cyan-400 to-green-400 bg-clip-text text-3xl font-black text-transparent">
-          Pulse Track
-        </h1>
+        <Link href="/">
+          <h1 className="bg-linear-to-r from-cyan-400 to-green-400 bg-clip-text text-3xl font-black text-transparent cursor-pointer">
+            Pulse Track
+          </h1>
+        </Link>
       </div>
 
       <div className="flex flex-1 flex-col justify-between p-4">
