@@ -12,6 +12,7 @@ export async function GET() {
   try {
     await dbConnect();
 
+   
     const session = await getServerSession(
       authOptions
     );
@@ -24,6 +25,7 @@ export async function GET() {
         { status: 401 }
       );
     }
+
 
     const dietLogs =
       await DietLog.find({
@@ -48,6 +50,7 @@ export async function GET() {
       },
     });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       {
         success: false,
@@ -55,6 +58,97 @@ export async function GET() {
           "Failed to fetch diet logs",
       },
       { status: 500 }
+    );
+  }
+}
+
+export async function POST(
+  request: Request
+) {
+  try {
+    await dbConnect();
+    
+   
+    const session = await getServerSession(
+      authOptions
+    );
+
+    if (!session?.user) {
+      return NextResponse.json(
+        {
+          success: false,
+        },
+        { status: 401 }
+      );
+    }
+
+    const body =
+      await request.json();
+
+    const {
+      mealType,
+      calories,
+      protein,
+      carbs,
+      fats,
+      foodName,
+      quantity,
+      mealDate,
+    } = body;
+
+    if (
+      !mealType ||
+      calories === undefined ||
+      protein === undefined ||
+      carbs === undefined ||
+      fats === undefined
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "All diet fields are required",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const diet =
+      await DietLog.create({
+        userId: session.user.id,
+        mealType,
+        calories,
+        protein,
+        carbs,
+        fats,
+        quantity,
+        mealDate,
+        foodName,
+      });
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: diet,
+      },
+      {
+        status: 201,
+      }
+    );
+  } catch (error) {
+    console.log(error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message:
+          "Failed to create diet log",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }

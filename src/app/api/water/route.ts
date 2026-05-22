@@ -48,6 +48,7 @@ export async function GET() {
       },
     });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       {
         success: false,
@@ -55,6 +56,76 @@ export async function GET() {
           "Failed to fetch water logs",
       },
       { status: 500 }
+    );
+  }
+}
+
+export async function POST(
+  request: Request
+) {
+  try {
+    await dbConnect();
+
+      const session = await getServerSession(
+      authOptions
+    );
+
+    if (!session?.user) {
+      return NextResponse.json(
+        {
+          success: false,
+        },
+        { status: 401 }
+      );
+    }
+
+    const body =
+      await request.json();
+
+    const { amount } = body;
+
+    if (!amount) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Water amount is required",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const water =
+      await WaterLog.create({
+        userId: session.user.id,
+        amount,
+        date: new Date(),
+        
+      });
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: water,
+      },
+      {
+        status: 201,
+      }
+    );
+  } catch (error) {
+    console.log(error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message:
+          "Failed to create water log",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
