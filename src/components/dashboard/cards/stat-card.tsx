@@ -40,7 +40,7 @@ export default function StatCard({
 
         </div>
 
-        <div className="rounded-2xl bg-gradient-to-r from-cyan-500/20 to-green-500/20 p-4 text-cyan-400">
+        <div className="rounded-2xl bg-linear-to-r from-cyan-500/20 to-green-500/20 p-4 text-cyan-400">
           {icon}
         </div>
 
@@ -49,7 +49,7 @@ export default function StatCard({
       <div className="mt-6 flex items-center justify-between">
 
         <div className="h-2 w-full rounded-full bg-black/40">
-          <div className="h-2 w-[70%] rounded-full bg-gradient-to-r from-cyan-400 to-green-400" />
+          <div className="h-2 w-[70%] rounded-full bg-linear-to-r from-cyan-400 to-green-400" />
         </div>
 
         <span

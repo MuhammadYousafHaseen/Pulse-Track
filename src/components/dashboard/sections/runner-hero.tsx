@@ -49,7 +49,7 @@ export default function RunnerHero() {
             h-auto
             w-full
             max-w-87.5
-            object-contain
+            object-cover
           "
           priority
         />

@@ -31,87 +31,12 @@ import {
   Droplets,
 } from "lucide-react";
 
-type WorkoutType = {
-  workoutType?: string;
-
-  caloriesBurned?: number;
-
-  duration?: number;
-
-  workoutDate?: string;
-};
-
-type GoalType = {
-  title?: string;
-
-  targetValue?: number;
-
-  currentValue?: number;
-};
-
-type DietLogType = {
-  protein?: number;
-
-  carbs?: number;
-
-  fats?: number;
-};
-
-type DashboardData = {
-  overview?: {
-    data?: {
-      totalWorkouts?: number;
-
-      totalCaloriesBurned?: number;
-
-      currentWeight?: number;
-
-      bmi?: number;
-
-      todayWater?: number;
-
-      activeGoal?: {
-        title?: string;
-
-        targetValue?: number;
-
-        currentValue?: number;
-      };
-    };
-  };
-
-  workouts?: {
-    data?: WorkoutType[];
-  };
-
-  water?: {
-    data?: {
-      totalWater?: number;
-    };
-  };
-
-  weight?: {
-    data?: Array<{
-      weight?: number;
-
-      bmi?: number;
-
-      recordedAt?: string;
-    }>;
-  };
-
-  goals?: {
-    data?: GoalType[];
-  };
-
-  diet?: {
-    data?: {
-      totalCalories?: number;
-
-      dietLogs?: DietLogType[];
-    };
-  };
-};
+import type {
+  DashboardData,
+  WorkoutType,
+  GoalType,
+  DietLogType,
+} from "@/types/dashboard";
 
 type Props = {
   dashboardData: DashboardData | null;
@@ -138,6 +63,9 @@ export default function DashboardGrid({
 
   const goals: GoalType[] =
     data?.goals?.data || [];
+
+  const totalWater =
+    data?.water?.data?.totalWater || 0;
 
   const nutritionTotals =
     useMemo<NutritionTotalsType>(() => {
@@ -195,7 +123,11 @@ export default function DashboardGrid({
       <div className="lg:col-span-3">
         <StatCard
           title="BMI"
-          value={`${overview?.bmi || 0}`}
+          value={`${
+            overview?.bmi
+              ? overview.bmi.toFixed(1)
+              : 0
+          }`}
           icon={<HeartPulse size={28} />}
           increase="-3%"
         />
@@ -204,9 +136,7 @@ export default function DashboardGrid({
       <div className="lg:col-span-3">
         <StatCard
           title="Water Intake"
-          value={`${
-            overview?.todayWater || 0
-          } ml`}
+          value={`${totalWater} ml`}
           icon={<Droplets size={28} />}
           increase="+8%"
         />
@@ -269,9 +199,7 @@ export default function DashboardGrid({
 
       <div className="lg:col-span-4">
         <WaterCard
-          waterIntake={
-            overview?.todayWater || 0
-          }
+          waterIntake={totalWater}
         />
       </div>
 

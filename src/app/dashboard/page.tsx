@@ -6,14 +6,9 @@ import DashboardGrid from "@/components/dashboard/dashboard-grid";
 
 import DashboardHeader from "@/components/dashboard/sections/dashboard-header";
 
-interface DashboardData {
-  overview: any;
-  workouts: any;
-  water: any;
-  weight: any;
-  goals: any;
-  diet: any;
-}
+import type {
+  DashboardData,
+} from "@/types/dashboard";
 
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] =
@@ -28,18 +23,61 @@ export default function DashboardPage() {
     const fetchDashboardData =
       async () => {
         try {
-          const response = await fetch(
-            "/api/dashboard"
-          );
+          const [
+            overviewRes,
+            workoutsRes,
+            waterRes,
+            weightRes,
+            goalsRes,
+            dietRes,
+          ] = await Promise.all([
+            fetch("/api/overview"),
 
-          const data =
-            await response.json();
+            fetch("/api/workouts"),
 
-          if (data.success) {
-            setDashboardData(data.data);
-          }
+            fetch("/api/water"),
+
+            fetch("/api/weight"),
+
+            fetch("/api/goals"),
+
+            fetch("/api/diet"),
+          ]);
+
+          const [
+            overview,
+            workouts,
+            water,
+            weight,
+            goals,
+            diet,
+          ] = await Promise.all([
+            overviewRes.json(),
+
+            workoutsRes.json(),
+
+            waterRes.json(),
+
+            weightRes.json(),
+
+            goalsRes.json(),
+
+            dietRes.json(),
+          ]);
+
+          setDashboardData({
+            overview,
+            workouts,
+            water,
+            weight,
+            goals,
+            diet,
+          });
         } catch (error) {
-          console.error(error);
+          console.error(
+            "Dashboard fetch error:",
+            error
+          );
         } finally {
           setLoading(false);
         }

@@ -3,11 +3,13 @@
 import { Progress } from "@/components/ui/progress";
 
 type Goal = {
-  title?: string;
+  goalType?: string;
 
-  targetValue?: number;
+  targetWeight?: number;
 
-  currentValue?: number;
+  targetCaloriesBurn?: number;
+
+  status?: string;
 };
 
 type Props = {
@@ -31,29 +33,36 @@ export default function GoalsCard({
         ) : (
           goals.map((goal, index) => {
             const progress =
-              goal.targetValue &&
-              goal.currentValue
-                ? (goal.currentValue /
-                    goal.targetValue) *
-                  100
-                : 0;
+              goal.status === "completed"
+                ? 100
+                : 65;
 
             return (
               <div key={index}>
                 <div className="mb-2 flex items-center justify-between">
-                  <span>
-                    {goal.title}
+                  <span className="capitalize">
+                    {goal.goalType?.replaceAll(
+                      "_",
+                      " "
+                    )}
                   </span>
 
                   <span>
-                    {goal.currentValue}/
-                    {goal.targetValue}
+                    {goal.status}
                   </span>
                 </div>
 
                 <Progress
                   value={progress}
                 />
+
+                <div className="mt-2 text-sm text-gray-400">
+                  {goal.targetWeight &&
+                    `Target Weight: ${goal.targetWeight} kg`}
+
+                  {goal.targetCaloriesBurn &&
+                    `Calories Goal: ${goal.targetCaloriesBurn}`}
+                </div>
               </div>
             );
           })

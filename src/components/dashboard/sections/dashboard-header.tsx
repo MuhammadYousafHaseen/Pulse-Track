@@ -2,7 +2,14 @@
 
 import { motion } from "framer-motion";
 
+import { useSession } from "next-auth/react";
+
 export default function DashboardHeader() {
+  const { data: session } = useSession();
+
+  const userName =
+    session?.user?.name || "User";
+
   return (
     <motion.div
       initial={{
@@ -17,8 +24,9 @@ export default function DashboardHeader() {
     >
       <h1 className="text-4xl font-black">
         Welcome Back,
-        <span className="bg-gradient-to-r from-cyan-400 to-green-400 bg-clip-text text-transparent">
-          {" "}Alex!
+        <span className="bg-linear-to-r from-cyan-400 to-green-400 bg-clip-text text-transparent">
+          {" "}
+          {userName}!
         </span>
       </h1>
 

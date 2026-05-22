@@ -1,7 +1,9 @@
 "use client";
 
 type Workout = {
-  workoutType?: string;
+  exerciseName?: string;
+
+  category?: string;
 
   workoutDate?: string;
 };
@@ -32,8 +34,12 @@ export default function RecentActivity({
                 key={index}
                 className="rounded-2xl bg-black/30 p-4"
               >
-                <p>
-                  {workout.workoutType}
+                <p className="font-semibold">
+                  {workout.exerciseName}
+                </p>
+
+                <p className="mt-1 text-sm text-cyan-400">
+                  {workout.category}
                 </p>
 
                 <p className="mt-1 text-sm text-gray-400">
