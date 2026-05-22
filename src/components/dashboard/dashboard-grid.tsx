@@ -114,7 +114,7 @@ type DashboardData = {
 };
 
 type Props = {
-  data: DashboardData;
+  dashboardData: DashboardData | null;
 };
 
 type NutritionTotalsType = {
@@ -126,8 +126,10 @@ type NutritionTotalsType = {
 };
 
 export default function DashboardGrid({
-  data,
+  dashboardData,
 }: Props) {
+  const data = dashboardData;
+
   const overview =
     data?.overview?.data;
 
@@ -144,17 +146,14 @@ export default function DashboardGrid({
 
       return dietLogs.reduce<NutritionTotalsType>(
         (acc, curr) => {
-          acc.protein =
-            acc.protein +
-            (curr.protein || 0);
+          acc.protein +=
+            curr.protein || 0;
 
-          acc.carbs =
-            acc.carbs +
-            (curr.carbs || 0);
+          acc.carbs +=
+            curr.carbs || 0;
 
-          acc.fats =
-            acc.fats +
-            (curr.fats || 0);
+          acc.fats +=
+            curr.fats || 0;
 
           return acc;
         },
