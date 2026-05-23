@@ -113,6 +113,8 @@ export async function POST(
       {
         success: true,
         data: goal,
+        message:
+          "Goal created successfully",
       },
       {
         status: 201,
