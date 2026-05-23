@@ -87,8 +87,8 @@ export default function Navbar() {
       icon: <Dumbbell size={18} />,
     },
     {
-      label: "Diet",
-      href: "/diet",
+      label: "Nutrition",
+      href: "/nutrition",
       icon: <Salad size={18} />,
     },
     {
