@@ -32,46 +32,53 @@ type NavLink = {
 
 export default function Navbar() {
   const pathname = usePathname();
-
   const router = useRouter();
-
-  const { data: session, status } =
-    useSession();
+  const { data: session, status } = useSession();
 
   const user = session?.user;
 
-  const [isMobileMenuOpen, setIsMobileMenuOpen] =
-    useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // -----------------------------------------
   // BLOCKED USER
   // -----------------------------------------
-
-  if (
-    user &&
-    "isBlocked" in user &&
-    user.isBlocked
-  ) {
+  if (user && "isBlocked" in user && user.isBlocked) {
     signOut({
       callbackUrl: "/auth/login",
     });
   }
 
-  const closeMobileMenu = () =>
-    setIsMobileMenuOpen(false);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+  // -----------------------------------------
+  // SMOOTH SCROLL LOGIC
+  // -----------------------------------------
+  const handleScrollToSection = (id: string) => {
+    closeMobileMenu();
+
+    if (pathname !== "/") {
+      router.push(`/#${id}`);
+      return;
+    }
+
+    const el = document.getElementById(id);
+
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   // -----------------------------------------
   // LINKS
   // -----------------------------------------
-
   const publicLinks: NavLink[] = [
     {
       label: "Features",
-      href: "#features",
+      href: "features",
     },
     {
       label: "About",
-      href: "#about",
+      href: "about",
     },
   ];
 
@@ -110,10 +117,7 @@ export default function Navbar() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
 
           {/* LOGO */}
-          <Link
-            href="/"
-            className="flex items-center gap-3"
-          >
+          <Link href="/" className="flex items-center gap-3">
             <Image
               src="/images/logo.png"
               alt="Pulse Track Logo"
@@ -136,25 +140,24 @@ export default function Navbar() {
 
             {!session &&
               publicLinks.map((link) => (
-                <Link
+                <button
                   key={link.href}
-                  href={link.href}
-                  className="text-sm font-medium text-gray-300 transition hover:text-green-400"
+                  onClick={() => handleScrollToSection(link.href)}
+                  className="text-sm font-medium cursor-pointer text-gray-300 transition hover:text-green-400"
                 >
                   {link.label}
-                </Link>
+                </button>
               ))}
 
             {session &&
               protectedLinks.map((link) => {
-                const isActive =
-                  pathname === link.href;
+                const isActive = pathname === link.href;
 
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+                    className={`flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
                       isActive
                         ? "bg-linear-to-r from-blue-600 to-green-500 text-white"
                         : "text-gray-300 hover:bg-blue-500/10 hover:text-green-400"
@@ -166,16 +169,15 @@ export default function Navbar() {
                 );
               })}
 
-            {session &&
-              user?.role === "admin" && (
-                <Link
-                  href="/admin"
-                  className="flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-400"
-                >
-                  <ShieldCheck size={18} />
-                  Admin
-                </Link>
-              )}
+            {session && user?.role === "admin" && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-400"
+              >
+                <ShieldCheck size={18} />
+                Admin
+              </Link>
+            )}
           </div>
 
           {/* RIGHT */}
@@ -198,7 +200,6 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center gap-3">
 
-                {/* LOGIN BUTTON FIXED */}
                 <Link href="/auth/login">
                   <Button
                     variant="outline"
@@ -208,7 +209,6 @@ export default function Navbar() {
                   </Button>
                 </Link>
 
-                {/* REGISTER */}
                 <Link href="/auth/register">
                   <Button className="rounded-full bg-linear-to-r from-blue-600 to-green-500 text-white hover:opacity-90">
                     Get Started
@@ -219,30 +219,18 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* MOBILE MENU BUTTON */}
+          {/* MOBILE BUTTON */}
           <div className="flex items-center gap-3 md:hidden">
-
             <button
-              onClick={() =>
-                setIsMobileMenuOpen(
-                  (prev) => !prev
-                )
-              }
+              onClick={() => setIsMobileMenuOpen((prev) => !prev)}
               className="rounded-full border border-blue-500/20 bg-slate-900 p-2 text-white shadow-lg transition hover:bg-slate-800"
             >
               {isMobileMenuOpen ? (
-                <X
-                  size={22}
-                  className="text-white"
-                />
+                <X size={22} />
               ) : (
-                <Menu
-                  size={22}
-                  className="text-white"
-                />
+                <Menu size={22} />
               )}
             </button>
-
           </div>
         </div>
       </nav>
@@ -251,7 +239,6 @@ export default function Navbar() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
-
             {/* OVERLAY */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -267,31 +254,28 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ duration: 0.25 }}
-              className="fixed left-0 top-0 z-50 flex h-full w-[82%] flex-col border-r border-blue-500/20 bg-slate-950 p-6 shadow-2xl"
+              className="fixed left-0 top-0 z-50 flex h-full w-[82%] flex-col border-r border-blue-500/20 bg-slate-950 p-6"
             >
-
               {/* CLOSE */}
               <button
                 onClick={closeMobileMenu}
                 className="flex items-center gap-2 text-white"
               >
-                Close
-                <X size={24} />
+                Close <X size={24} />
               </button>
 
-              {/* MOBILE LINKS */}
+              {/* LINKS */}
               <div className="mt-10 flex flex-col gap-4">
 
                 {!session &&
                   publicLinks.map((link) => (
-                    <Link
+                    <button
                       key={link.href}
-                      href={link.href}
-                      onClick={closeMobileMenu}
-                      className="rounded-xl px-4 py-3 text-gray-300 transition hover:bg-blue-500/10 hover:text-green-400"
+                      onClick={() => handleScrollToSection(link.href)}
+                      className="rounded-xl px-4 py-3 text-left text-gray-300 transition hover:bg-blue-500/10 hover:text-green-400"
                     >
                       {link.label}
-                    </Link>
+                    </button>
                   ))}
 
                 {session &&
@@ -307,29 +291,26 @@ export default function Navbar() {
                     </Link>
                   ))}
 
-                {session &&
-                  user?.role === "admin" && (
-                    <Link
-                      href="/admin"
-                      onClick={closeMobileMenu}
-                      className="flex items-center gap-2 rounded-xl bg-red-500/10 px-4 py-3 text-red-400"
-                    >
-                      <ShieldCheck size={18} />
-                      Admin
-                    </Link>
-                  )}
-
+                {session && user?.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    onClick={closeMobileMenu}
+                    className="flex items-center gap-2 rounded-xl bg-red-500/10 px-4 py-3 text-red-400"
+                  >
+                    <ShieldCheck size={18} />
+                    Admin
+                  </Link>
+                )}
               </div>
 
-              {/* MOBILE BUTTONS */}
+              {/* AUTH BUTTONS */}
               <div className="mt-auto pt-10">
 
                 {session ? (
                   <Button
                     onClick={() =>
                       signOut({
-                        callbackUrl:
-                          "/auth/login",
+                        callbackUrl: "/auth/login",
                       })
                     }
                     className="w-full bg-red-500 text-white hover:bg-red-600"
@@ -343,22 +324,14 @@ export default function Navbar() {
                     <Button
                       variant="outline"
                       className="border-blue-500/30 bg-white/5 text-white hover:bg-blue-500/10"
-                      onClick={() =>
-                        router.push(
-                          "/auth/login"
-                        )
-                      }
+                      onClick={() => router.push("/auth/login")}
                     >
                       Login
                     </Button>
 
                     <Button
                       className="bg-linear-to-r from-blue-600 to-green-500 text-white"
-                      onClick={() =>
-                        router.push(
-                          "/auth/register"
-                        )
-                      }
+                      onClick={() => router.push("/auth/register")}
                     >
                       Get Started
                     </Button>

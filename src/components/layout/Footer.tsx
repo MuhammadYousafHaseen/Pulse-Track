@@ -31,8 +31,8 @@ export default function Footer() {
       icon: <Dumbbell className="h-4 w-4" />,
     },
     {
-      label: "Diet Plans",
-      href: "/diet/plans",
+      label: "Nutrition",
+      href: "/nutrition",
       icon: <Salad className="h-4 w-4" />,
     },
     {
