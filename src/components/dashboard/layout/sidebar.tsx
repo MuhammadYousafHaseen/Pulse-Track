@@ -11,6 +11,7 @@ import {
   Settings,
   LifeBuoy,
   Home,
+  Scale,
 } from "lucide-react";
 
 const links = [
@@ -33,6 +34,11 @@ const links = [
     name: "Workouts",
     href: "/workouts",
     icon: Dumbbell,
+  },
+  {
+    name: "Weight",
+    href: "/weight",
+    icon: Scale,
   },
   {
     name: "Goals",
@@ -92,6 +98,7 @@ export default function Sidebar() {
             Support
           </button>
         </div>
+
       </div>
     </aside>
   );

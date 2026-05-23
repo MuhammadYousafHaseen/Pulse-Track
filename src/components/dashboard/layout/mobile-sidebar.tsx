@@ -10,6 +10,7 @@ import {
   Settings,
   Home,
   X,
+  Scale,
 } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,6 +31,11 @@ const links = [
     title: "Workouts",
     href: "/workouts",
     icon: <Dumbbell size={20} />,
+  },
+  {
+    title: "Weight",
+    href: "/weight",
+    icon: <Scale size={20} />,
   },
   {
     title: "Goals",
@@ -81,7 +87,6 @@ export default function MobileSidebar({ open, onClose }: Props) {
                 Pulse Track
               </h2>
 
-              {/* ShadCN Button */}
               <Button
                 variant="outline"
                 size="icon"
