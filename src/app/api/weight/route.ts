@@ -52,131 +52,70 @@ export async function GET() {
   }
 }
 
-export async function POST(
-  request: Request
-) {
+export async function POST(request: Request) {
   try {
     await dbConnect();
 
-    const session = await getServerSession(
-      authOptions
-    );
+    const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json(
-        {
-          success: false,
-        },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false }, { status: 401 });
     }
 
-    const body =
-      await request.json();
-
+    const body = await request.json();
     const { weight } = body;
 
     if (!weight) {
       return NextResponse.json(
-        {
-          success: false,
-          message:
-            "Weight is required",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Weight is required" },
+        { status: 400 }
       );
     }
 
-    const user =
-      await User.findById(
-        session.user.id
-      );
+    const user = await User.findById(session.user.id);
 
-    if (!user) {
+    if (!user || !user.height) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "User not found",
-        },
-        {
-          status: 404,
-        }
+        { success: false, message: "User or height missing" },
+        { status: 400 }
       );
     }
 
-    if (!user.height) {
-      return NextResponse.json(
-        {
-          success: false,
-          message:
-            "User height is missing",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
+    // BMI CALC
+    const heightInMeters = user.height / 100;
+    const bmi = weight / (heightInMeters * heightInMeters);
+    const roundedBMI = Number(bmi.toFixed(2));
 
-    /*
-      Assuming height is stored in CM
-      BMI Formula:
-      weight (kg) / height (m)^2
-    */
+    // 🔥 BODY FAT ESTIMATION (NEW)
+    const age = user.age || 25; // fallback
+    const bodyFat =
+      1.2 * roundedBMI + 0.23 * age - 16.2;
 
-    const heightInMeters =
-      user.height / 100;
+    const roundedBodyFat = Number(bodyFat.toFixed(2));
 
-    const bmi =
-      weight /
-      (
-        heightInMeters *
-        heightInMeters
-      );
+    const weightLog = await WeightLog.create({
+      userId: session.user.id,
+      weight,
+      bmi: roundedBMI,
+      bodyFatPercentage: roundedBodyFat,
+      recordedAt: new Date(),
+    });
 
-    const roundedBMI =
-      Number(bmi.toFixed(2));
-
-    const weightLog =
-      await WeightLog.create({
-        userId: session.user.id,
-        weight,
-        bmi: roundedBMI,
-      });
-
-    /*
-      Optional:
-      Update current user data too
-    */
-
+    // update user
     user.currentWeight = weight;
-
     user.bmi = roundedBMI;
 
     await user.save();
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: weightLog,
-      },
-      {
-        status: 201,
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      data: weightLog,
+    });
   } catch (error) {
     console.log(error);
-
     return NextResponse.json(
-      {
-        success: false,
-        message:
-          "Failed to create weight log",
-      },
-      {
-        status: 500,
-      }
+      { success: false, message: "Failed to create weight log" },
+      { status: 500 }
     );
   }
 }
