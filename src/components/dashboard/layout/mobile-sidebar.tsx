@@ -91,7 +91,7 @@ export default function MobileSidebar({ open, onClose }: Props) {
                 variant="outline"
                 size="icon"
                 onClick={onClose}
-                className="border-cyan-500/20 text-white hover:bg-cyan-500/10"
+                className="border-cyan-500/20 text-black hover:bg-cyan-500/10 hover:text-cyan-400"
               >
                 <X size={18} />
               </Button>
