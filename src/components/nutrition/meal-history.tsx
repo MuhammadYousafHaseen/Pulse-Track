@@ -14,67 +14,76 @@ interface DietLog {
   mealDate: string;
 }
 
+interface WaterLog {
+  _id: string;
+  amount: number;
+  date: string;
+}
+
 export default function MealHistory({
   refreshKey,
 }: {
   refreshKey?: number;
 }) {
   const [meals, setMeals] = useState<DietLog[]>([]);
+  const [water, setWater] = useState<WaterLog[]>([]);
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
-    const fetchMeals = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get("/api/diet");
+        const [dietRes, waterRes] = await Promise.all([
+          axios.get("/api/diet"),
+          axios.get("/api/water"),
+        ]);
 
-        const data: DietLog[] =
-          res.data?.data?.dietLogs || [];
-
-        setMeals(data);
+        setMeals(dietRes.data?.data?.dietLogs || []);
+        setWater(waterRes.data?.data?.waterLogs || []);
       } catch (err) {
-        console.error("Failed to fetch meals", err);
+        console.error("Failed to fetch nutrition data", err);
       }
     };
 
-    fetchMeals();
+    fetchData();
   }, [refreshKey]);
 
   const visibleMeals = showAll ? meals : meals.slice(0, 4);
+  const visibleWater = showAll ? water : water.slice(0, 4);
 
   return (
-    <section className="space-y-5">
+    <section className="space-y-6">
       <h2 className="text-xl font-bold text-white">
-        Meal History 🍽️
+        Nutrition History 🍽️ + 💧
       </h2>
 
-      {meals.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-gray-700 bg-gray-900 p-6 text-center text-gray-400">
-          No meals logged yet
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {visibleMeals.map((meal) => (
-              <MealCard key={meal._id} meal={meal} />
-            ))}
-          </div>
+      {/* MEALS */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {visibleMeals.map((meal) => (
+          <MealCard key={meal._id} meal={meal} />
+        ))}
+      </div>
 
-          {meals.length > 4 && (
-            <button
-              onClick={() => setShowAll((p) => !p)}
-              className="text-sm text-green-400 hover:text-green-300"
-            >
-              {showAll ? "Show Less" : "Show More"}
-            </button>
-          )}
-        </>
-      )}
+      {/* WATER */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {visibleWater.map((w) => (
+          <WaterCard key={w._id} water={w} />
+        ))}
+      </div>
+
+      {meals.length > 4 || water.length > 4 ? (
+        <button
+          onClick={() => setShowAll((p) => !p)}
+          className="text-sm text-green-400"
+        >
+          {showAll ? "Show Less" : "Show More"}
+        </button>
+      ) : null}
     </section>
   );
 }
 
 /* ========================= */
-/* CARD COMPONENT           */
+/* MEAL CARD                */
 /* ========================= */
 
 function MealCard({ meal }: { meal: DietLog }) {
@@ -84,14 +93,13 @@ function MealCard({ meal }: { meal: DietLog }) {
         <h3 className="font-bold text-green-400">
           {meal.foodName}
         </h3>
-
         <span className="text-xs text-gray-400">
           {meal.mealType}
         </span>
       </div>
 
       <p className="text-sm text-gray-300">
-        Calories: {meal.calories} kcal
+        Calories: {meal.calories}
       </p>
 
       <div className="flex gap-3 text-xs text-gray-400">
@@ -99,9 +107,27 @@ function MealCard({ meal }: { meal: DietLog }) {
         <span>C: {meal.carbs || 0}g</span>
         <span>F: {meal.fats || 0}g</span>
       </div>
+    </div>
+  );
+}
+
+/* ========================= */
+/* WATER CARD               */
+/* ========================= */
+
+function WaterCard({ water }: { water: WaterLog }) {
+  return (
+    <div className="rounded-2xl border border-blue-500/10 bg-gray-900 p-4 space-y-2">
+      <h3 className="font-bold text-blue-400">
+        Water Intake 💧
+      </h3>
+
+      <p className="text-sm text-gray-300">
+        {water.amount} ml
+      </p>
 
       <p className="text-xs text-gray-500">
-        {new Date(meal.mealDate).toLocaleDateString()}
+        {new Date(water.date).toLocaleDateString()}
       </p>
     </div>
   );
