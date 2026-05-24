@@ -10,6 +10,7 @@ import NutritionGuidance from "@/components/nutrition/nutrition-guidance";
 import MealHistory from "@/components/nutrition/meal-history";
 import CalorieChart from "@/components/nutrition/calorie-chart";
 import MacroBreakdown from "@/components/nutrition/macro-breakdown";
+import DietPlansSection from "@/components/nutrition/diet-plans-section";
 
 export default function NutritionPage() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -47,6 +48,8 @@ export default function NutritionPage() {
       <MealHistory
         refreshKey={refreshKey}
       />
+
+        <DietPlansSection />
 
       {/* CHART */}
       <CalorieChart
