@@ -49,10 +49,14 @@ export default function NutritionPage() {
       />
 
       {/* CHART */}
-      <CalorieChart/>
+      <CalorieChart
+        refreshKey={refreshKey}
+      />
 
       {/* MACRO BREAKDOWN */}
-      <MacroBreakdown/>
+      <MacroBreakdown
+        refreshKey={refreshKey}
+      />
     </div>
   );
 }

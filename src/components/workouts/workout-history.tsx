@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+
 import WorkoutCard from "./workout-card";
 
 interface Workout {
@@ -16,31 +17,47 @@ interface Workout {
   workoutDate: string;
 }
 
-export default function WorkoutHistory() {
-  const [workouts, setWorkouts] = useState<Workout[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [showAll, setShowAll] = useState(false);
+export default function WorkoutHistory({
+  refreshKey,
+}: {
+  refreshKey?: number;
+}) {
+  const [workouts, setWorkouts] = useState<
+    Workout[]
+  >([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] = useState<
+    string | null
+  >(null);
+
+  const [showAll, setShowAll] =
+    useState(false);
 
   useEffect(() => {
     let isMounted = true;
 
-    (async () => {
+    const fetchWorkouts = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const res = await axios.get("/api/workouts");
+        const res = await axios.get(
+          "/api/workouts"
+        );
 
         const data = res.data;
 
-        const normalized: Workout[] = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.data)
-          ? data.data
-          : Array.isArray(data?.workouts)
-          ? data.workouts
-          : [];
+        const normalized: Workout[] =
+          Array.isArray(data)
+            ? data
+            : Array.isArray(data?.data)
+            ? data.data
+            : Array.isArray(data?.workouts)
+            ? data.workouts
+            : [];
 
         if (isMounted) {
           setWorkouts(normalized);
@@ -49,7 +66,10 @@ export default function WorkoutHistory() {
         console.error(err);
 
         if (isMounted) {
-          setError("Failed to load workouts");
+          setError(
+            "Failed to load workouts"
+          );
+
           setWorkouts([]);
         }
       } finally {
@@ -57,14 +77,16 @@ export default function WorkoutHistory() {
           setLoading(false);
         }
       }
-    })();
+    };
+
+    fetchWorkouts();
 
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [refreshKey]);
 
-  // 👉 SHOW ONLY FIRST 4 OR ALL
+  // SHOW FIRST 4 OR ALL
   const visibleWorkouts = showAll
     ? workouts
     : workouts.slice(0, 4);
@@ -77,7 +99,9 @@ export default function WorkoutHistory() {
         </h2>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {Array.from({ length: 4 }).map((_, i) => (
+          {Array.from({
+            length: 4,
+          }).map((_, i) => (
             <div
               key={i}
               className="h-40 animate-pulse rounded-2xl bg-gray-900"
@@ -98,7 +122,6 @@ export default function WorkoutHistory() {
 
   return (
     <section className="space-y-5">
-      
       {/* HEADER */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-2xl font-bold text-white">
@@ -106,35 +129,47 @@ export default function WorkoutHistory() {
         </h2>
 
         <span className="text-sm text-green-400">
-          Showing {visibleWorkouts.length} of {workouts.length}
+          Showing{" "}
+          {visibleWorkouts.length} of{" "}
+          {workouts.length}
         </span>
       </div>
 
-      {/* EMPTY STATE */}
+      {/* EMPTY */}
       {workouts.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-gray-700 bg-gray-900/40 p-6 text-center">
-          <p className="text-gray-400">No workouts found 💪</p>
+          <p className="text-gray-400">
+            No workouts found 💪
+          </p>
         </div>
       ) : (
         <>
           {/* GRID */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {visibleWorkouts.map((workout) => (
-              <WorkoutCard
-                key={workout._id}
-                workout={workout}
-              />
-            ))}
+            {visibleWorkouts.map(
+              (workout) => (
+                <WorkoutCard
+                  key={workout._id}
+                  workout={workout}
+                />
+              )
+            )}
           </div>
 
-          {/* SHOW MORE / HIDE BUTTON */}
+          {/* SHOW MORE */}
           {workouts.length > 4 && (
             <div className="flex justify-center">
               <button
-                onClick={() => setShowAll((prev) => !prev)}
+                onClick={() =>
+                  setShowAll(
+                    (prev) => !prev
+                  )
+                }
                 className="rounded-full border border-green-500/30 bg-green-500/10 px-6 py-2 text-sm text-green-300 transition hover:bg-green-500/20"
               >
-                {showAll ? "Hide Workouts" : "Show More Workouts"}
+                {showAll
+                  ? "Hide Workouts"
+                  : "Show More Workouts"}
               </button>
             </div>
           )}

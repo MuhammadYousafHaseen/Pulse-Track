@@ -13,8 +13,6 @@ import {
   CartesianGrid,
 } from "recharts";
 
-
-
 interface ApiResponse {
   success: boolean;
   data: {
@@ -30,29 +28,44 @@ interface ChartData {
   calories: number;
 }
 
-export default function CalorieChart() {
+export default function CalorieChart({
+  refreshKey,
+}: {
+  refreshKey?: number;
+}) {
   const [data, setData] = useState<ChartData[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get<ApiResponse>("/api/diet");
+        const res =
+          await axios.get<ApiResponse>(
+            "/api/diet"
+          );
 
-        const logs = res.data?.data?.dietLogs || [];
+        const logs =
+          res.data?.data?.dietLogs || [];
 
-        const formatted: ChartData[] = logs.map((item) => ({
-          date: new Date(item.mealDate).toLocaleDateString(),
-          calories: item.calories,
-        }));
+        const formatted: ChartData[] =
+          logs.map((item) => ({
+            date: new Date(
+              item.mealDate
+            ).toLocaleDateString(),
+
+            calories: item.calories,
+          }));
 
         setData(formatted);
       } catch (err) {
-        console.error("Failed to load calorie chart", err);
+        console.error(
+          "Failed to load calorie chart",
+          err
+        );
       }
     };
 
     fetchData();
-  }, []);
+  }, [refreshKey]);
 
   if (!data.length) {
     return (
@@ -69,12 +82,19 @@ export default function CalorieChart() {
       </h2>
 
       <div className="h-75 w-full">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+        >
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
+
             <XAxis dataKey="date" />
+
             <YAxis />
+
             <Tooltip />
+
             <Line
               type="monotone"
               dataKey="calories"

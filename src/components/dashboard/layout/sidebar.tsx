@@ -4,7 +4,6 @@ import Link from "next/link";
 
 import {
   LayoutDashboard,
-  BarChart3,
   Dumbbell,
   Target,
   Salad,
@@ -24,11 +23,6 @@ const links = [
     name: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
-  },
-  {
-    name: "Analytics",
-    href: "/analytics",
-    icon: BarChart3,
   },
   {
     name: "Workouts",

@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import WorkoutsHero from "@/components/workouts/workouts-hero";
 import WorkoutStats from "@/components/workouts/workout-stats";
 import AddWorkoutForm from "@/components/workouts/add-workout-form";
@@ -11,9 +13,16 @@ import AchievementBadges from "@/components/workouts/achievement-badges";
 import WorkoutStreak from "@/components/workouts/workout-streak";
 
 export default function WorkoutsPage() {
+  // ✅ refresh trigger
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // ✅ called after adding workout
+  const handleWorkoutAdded = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
+
   return (
     <div className="space-y-10">
-      
       {/* HERO */}
       <WorkoutsHero />
 
@@ -22,12 +31,17 @@ export default function WorkoutsPage() {
 
       {/* FORM + MOTIVATION */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <AddWorkoutForm />
+        <AddWorkoutForm
+          onSuccess={handleWorkoutAdded}
+        />
+
         <MotivationSection />
       </div>
 
       {/* HISTORY */}
-      <WorkoutHistory />
+      <WorkoutHistory
+        refreshKey={refreshKey}
+      />
 
       {/* CHART */}
       <WeeklyProgressChart />
@@ -40,7 +54,6 @@ export default function WorkoutsPage() {
         <AchievementBadges />
         <WorkoutStreak />
       </div>
-
     </div>
   );
 }
