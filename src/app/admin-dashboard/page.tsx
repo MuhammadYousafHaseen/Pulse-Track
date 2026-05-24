@@ -3,7 +3,7 @@ import AdminDashboardWrapper from "@/components/admin-dashboard/dashboard/admin-
 
 export default function AdminDashboardPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>Loading dashboard...</div>}>
       <AdminDashboardWrapper />
     </Suspense>
   );
