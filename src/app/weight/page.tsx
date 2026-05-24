@@ -14,22 +14,21 @@ export default function WeightPage() {
 
   return (
     <div className="space-y-10">
-
       <WeightHero />
 
-      {/* 🔥 BOTH MUST SYNC */}
+      {/* 🔥 STATS SYNC */}
       <WeightStats refreshKey={refresh} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <AddWeightForm onSuccess={() => setRefresh((p) => p + 1)} />
         <WeightGuidance />
       </div>
+
+      {/* HISTORY SYNC */}
       <WeightHistory refreshKey={refresh} />
 
-      <WeightChart />
-
-
-
+      {/* CHART SYNC (FIXED) */}
+      <WeightChart refreshKey={refresh} />
     </div>
   );
 }

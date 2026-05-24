@@ -34,7 +34,11 @@ interface ApiResponse {
 /* COMPONENT                */
 /* ========================= */
 
-export default function WeightChart() {
+export default function WeightChart({
+  refreshKey,
+}: {
+  refreshKey?: number;
+}) {
   const [data, setData] = useState<WeightLog[]>([]);
 
   useEffect(() => {
@@ -56,7 +60,7 @@ export default function WeightChart() {
     };
 
     fetchData();
-  }, []);
+  }, [refreshKey]); // 🔥 IMPORTANT FIX
 
   if (!data.length) {
     return (
@@ -68,9 +72,7 @@ export default function WeightChart() {
 
   return (
     <div className="rounded-2xl bg-gray-900 p-4 md:p-6">
-      <h2 className="mb-4 text-lg font-bold text-white">
-        Weight Progress
-      </h2>
+      <h2 className="mb-4 text-lg font-bold text-white">Weight Progress</h2>
 
       <div className="h-75 w-full">
         <ResponsiveContainer width="100%" height="100%">
