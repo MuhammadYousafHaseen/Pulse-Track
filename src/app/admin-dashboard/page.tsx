@@ -1,3 +1,4 @@
+"use client";
 import { Suspense } from "react";
 import AdminDashboardWrapper from "@/components/admin-dashboard/dashboard/admin-dashboard-wrapper";
 
