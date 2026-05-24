@@ -1,7 +1,6 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-
 import UsersManagement from "../users/users-management";
 import ExerciseManagement from "../exercises/exercise-management";
 import DietManagement from "../diets/diet-management";
@@ -9,7 +8,6 @@ import AdminStatCards from "./admin-stat-cards";
 
 export default function AdminDashboardWrapper() {
   const searchParams = useSearchParams();
-
   const currentTab = searchParams.get("tab") ?? "dashboard";
 
   return (
@@ -19,7 +17,9 @@ export default function AdminDashboardWrapper() {
       <div className="rounded-3xl border border-cyan-500/10 bg-white/5 p-4 backdrop-blur-xl md:p-6">
         {currentTab === "dashboard" && (
           <div>
-            <h2 className="text-3xl font-black">Welcome Admin</h2>
+            <h2 className="text-3xl font-black text-transparent bg-clip-text bg-linear-to-r from-white to-slate-400">
+              Welcome Admin
+            </h2>
           </div>
         )}
 

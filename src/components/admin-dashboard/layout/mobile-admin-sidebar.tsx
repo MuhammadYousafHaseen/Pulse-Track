@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-
 import {
   Menu,
   X,
@@ -12,7 +11,6 @@ import {
   Dumbbell,
   UtensilsCrossed,
 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 
 const navItems = [
@@ -61,10 +59,8 @@ export default function MobileAdminSidebar() {
       {/* OVERLAY */}
       {open && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm lg:hidden">
-          
           {/* SIDEBAR */}
           <div className="h-full w-70 border-r border-cyan-500/10 bg-[#020617] p-5">
-
             {/* HEADER */}
             <div className="mb-10 flex items-center justify-between">
               <h1 className="bg-linear-to-r from-cyan-400 to-green-400 bg-clip-text text-2xl font-black text-transparent">
@@ -94,15 +90,11 @@ export default function MobileAdminSidebar() {
                     className="flex items-center gap-4 rounded-2xl border border-transparent bg-white/5 px-4 py-4 text-gray-300 transition-all duration-300 hover:border-cyan-500/20 hover:bg-cyan-500/10 hover:text-white"
                   >
                     <Icon size={22} />
-
-                    <span className="font-medium">
-                      {item.title}
-                    </span>
+                    <span className="font-medium">{item.title}</span>
                   </Link>
                 );
               })}
             </div>
-
           </div>
         </div>
       )}

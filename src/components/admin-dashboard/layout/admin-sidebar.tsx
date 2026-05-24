@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-
 import {
   Users,
   Dumbbell,
@@ -42,12 +41,10 @@ const navItems = [
 
 export default function AdminSidebar() {
   const searchParams = useSearchParams();
-
   const activeTab = searchParams.get("tab") || "dashboard";
 
   return (
     <aside className="fixed left-0 top-0 hidden h-screen w-70 border-r border-cyan-500/10 bg-white/5 backdrop-blur-xl lg:block">
-      
       {/* HEADER */}
       <div className="border-b border-cyan-500/10 p-6">
         <h1 className="bg-linear-to-r from-cyan-400 to-green-400 bg-clip-text text-3xl font-black text-transparent">
@@ -59,9 +56,7 @@ export default function AdminSidebar() {
       <div className="space-y-2 p-4">
         {navItems.map((item) => {
           const Icon = item.icon;
-
-          const isActive =
-            item.tab && activeTab === item.tab;
+          const isActive = item.tab && activeTab === item.tab;
 
           return (
             <Link
@@ -74,10 +69,7 @@ export default function AdminSidebar() {
               }`}
             >
               <Icon size={22} />
-
-              <span className="font-medium">
-                {item.title}
-              </span>
+              <span className="font-medium">{item.title}</span>
             </Link>
           );
         })}
