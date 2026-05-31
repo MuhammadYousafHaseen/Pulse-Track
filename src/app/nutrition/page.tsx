@@ -25,7 +25,9 @@ export default function NutritionPage() {
       <NutritionHero />
 
       {/* STATS */}
-      <NutritionStats/>
+     <NutritionStats
+  refreshKey={refreshKey}
+/>
 
       {/* FORMS + GUIDANCE */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

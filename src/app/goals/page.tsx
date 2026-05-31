@@ -22,7 +22,7 @@ export default function GoalsPage() {
       <GoalsHero />
 
       {/* STATS */}
-      <GoalsStats />
+      <GoalsStats  refreshKey={refreshKey} />
 
       {/* FORM + PROGRESS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
