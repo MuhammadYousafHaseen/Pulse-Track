@@ -6,7 +6,10 @@ import Link from "next/link";
 
 import { useRouter } from "next/navigation";
 
-import { signIn } from "next-auth/react";
+import {
+  signIn,
+  getSession,
+} from "next-auth/react";
 
 import { useForm } from "react-hook-form";
 
@@ -88,17 +91,46 @@ const Page = () => {
       }
 
       /*
-        FETCH SESSION
-        AFTER LOGIN
+        WAIT FOR SESSION
+        TO BE CREATED
       */
 
-      const sessionRes =
-        await fetch(
-          "/api/auth/session"
+      let session = null;
+
+      for (
+        let i = 0;
+        i < 20;
+        i++
+      ) {
+        session =
+          await getSession();
+
+        if (
+          session?.user
+        ) {
+          break;
+        }
+
+        await new Promise(
+          (resolve) =>
+            setTimeout(
+              resolve,
+              300
+            )
+        );
+      }
+
+      if (
+        !session ||
+        !session.user
+      ) {
+        notify(
+          "Session creation failed",
+          "error"
         );
 
-      const session =
-        await sessionRes.json();
+        return;
+      }
 
       notify(
         "Login successful 🚀",
@@ -110,7 +142,7 @@ const Page = () => {
       */
 
       if (
-        session?.user?.role ===
+        session.user.role ===
         "admin"
       ) {
         router.replace(
@@ -121,6 +153,8 @@ const Page = () => {
           "/dashboard"
         );
       }
+
+      router.refresh();
     } catch (error) {
       console.error(
         "Login error:",
@@ -138,12 +172,9 @@ const Page = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-black via-blue-950 to-green-950 px-4 py-10">
-      
       <div className="w-full max-w-md rounded-3xl border border-blue-500/20 bg-black/40 p-5 shadow-2xl backdrop-blur-xl sm:p-8">
-        
         {/* HEADER */}
         <div className="mb-8 text-center">
-          
           <h1 className="bg-linear-to-r from-blue-400 to-green-400 bg-clip-text text-3xl font-black text-transparent sm:text-4xl">
             Welcome Back
           </h1>
@@ -151,7 +182,6 @@ const Page = () => {
           <p className="mt-2 text-sm text-blue-200 sm:text-base">
             Sign in to continue your fitness journey
           </p>
-
         </div>
 
         {/* FORM */}
@@ -162,7 +192,6 @@ const Page = () => {
             )}
             className="space-y-5"
           >
-            
             {/* EMAIL */}
             <FormField
               control={form.control}
@@ -171,7 +200,6 @@ const Page = () => {
                 field,
               }) => (
                 <FormItem>
-                  
                   <FormLabel className="text-blue-200">
                     Email
                   </FormLabel>
@@ -186,7 +214,6 @@ const Page = () => {
                   </FormControl>
 
                   <FormMessage />
-
                 </FormItem>
               )}
             />
@@ -199,7 +226,6 @@ const Page = () => {
                 field,
               }) => (
                 <FormItem>
-                  
                   <FormLabel className="text-blue-200">
                     Password
                   </FormLabel>
@@ -214,7 +240,6 @@ const Page = () => {
                   </FormControl>
 
                   <FormMessage />
-
                 </FormItem>
               )}
             />
@@ -228,20 +253,17 @@ const Page = () => {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-
                   Signing in...
                 </>
               ) : (
                 "Sign In"
               )}
             </Button>
-
           </form>
         </Form>
 
         {/* FOOTER */}
         <div className="mt-6 text-center">
-          
           <p className="text-sm text-gray-400">
             Don&apos;t have an
             account?{" "}
@@ -252,9 +274,7 @@ const Page = () => {
               Sign Up
             </Link>
           </p>
-
         </div>
-
       </div>
     </div>
   );
