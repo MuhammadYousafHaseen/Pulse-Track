@@ -76,7 +76,7 @@ const Page = () => {
 
       gender: "male",
 
-      age: 18,
+      age: 0,
 
       height: 170,
 
