@@ -13,14 +13,8 @@ export interface IUser extends Document {
   isBlocked?: boolean;
 
   height?: number;
-  currentWeight?: number;
-  targetWeight?: number;
-
-  bmi?: number;
 
   activityLevel?: "beginner" | "intermediate" | "advanced";
-
-  goalType?: "weight_loss" | "muscle_gain" | "maintain_fitness";
 
   dailyCalorieGoal?: number;
   waterGoal?: number;
@@ -73,26 +67,9 @@ const userSchema: Schema<IUser> = new Schema(
       type: Number,
     },
 
-    currentWeight: {
-      type: Number,
-    },
-
-    targetWeight: {
-      type: Number,
-    },
-
-    bmi: {
-      type: Number,
-    },
-
     activityLevel: {
       type: String,
       enum: ["beginner", "intermediate", "advanced"],
-    },
-
-    goalType: {
-      type: String,
-      enum: ["weight_loss", "muscle_gain", "maintain_fitness"],
     },
 
     dailyCalorieGoal: {
