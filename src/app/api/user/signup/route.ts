@@ -19,10 +19,7 @@ export async function POST(
       gender,
       age,
       height,
-      currentWeight,
-      targetWeight,
       activityLevel,
-      goalType,
       dailyCalorieGoal,
       waterGoal,
     } = body;
@@ -45,8 +42,7 @@ export async function POST(
       !password ||
       !gender ||
       age === undefined ||
-      height === undefined ||
-      currentWeight === undefined
+      height === undefined
     ) {
       return Response.json(
         {
@@ -107,26 +103,6 @@ export async function POST(
       await bcrypt.hash(password, 10);
 
     // -----------------------------
-    // BMI Calculation
-    // -----------------------------
-
-    let bmi: number | undefined =
-      undefined;
-
-    if (height > 0 && currentWeight > 0) {
-      const heightInMeters =
-        height / 100;
-
-      bmi = parseFloat(
-        (
-          currentWeight /
-          (heightInMeters *
-            heightInMeters)
-        ).toFixed(2)
-      );
-    }
-
-    // -----------------------------
     // Create User
     // -----------------------------
 
@@ -149,18 +125,8 @@ export async function POST(
 
       height,
 
-      currentWeight,
-
-      targetWeight:
-        targetWeight || undefined,
-
-      bmi,
-
       activityLevel:
         activityLevel || undefined,
-
-      goalType:
-        goalType || undefined,
 
       dailyCalorieGoal:
         dailyCalorieGoal ||
@@ -206,4 +172,4 @@ export async function POST(
       }
     );
   }
-}
+  }
