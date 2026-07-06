@@ -68,31 +68,24 @@ const Page = () => {
     resolver: zodResolver(signUpSchema),
 
     defaultValues: {
-      name: "",
+  name: "",
 
-      email: "",
+  email: "",
 
-      password: "",
+  password: "",
 
-      gender: "male",
+  gender: "male",
 
-      age: 0,
+  age: 0,
 
-      height: 170,
+  height: 170,
 
-      currentWeight: 70,
+  activityLevel: "beginner",
 
-      targetWeight: 65,
+  dailyCalorieGoal: 2000,
 
-      activityLevel: "beginner",
-
-      goalType:
-        "maintain_fitness",
-
-      dailyCalorieGoal: 2000,
-
-      waterGoal: 2000,
-    },
+  waterGoal: 2000,
+},
   });
 
   // ========================================
@@ -178,7 +171,7 @@ const Page = () => {
                         value={
                           field.value ?? ""
                         }
-                        placeholder="Dilshad_Dev"
+                        placeholder="Haseen_Dev"
                         className="border-blue-500/20 bg-black/30 text-white"
                       />
                     </FormControl>
@@ -358,75 +351,7 @@ const Page = () => {
                 )}
               />
 
-              {/* CURRENT WEIGHT */}
-
-              <FormField
-                control={form.control}
-                name="currentWeight"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-blue-200">
-                      Current Weight
-                    </FormLabel>
-
-                    <FormControl>
-                      <Input
-                        type="number"
-                       value={
-  typeof field.value === "number"
-    ? field.value.toString()
-    : ""
-}
-                        onChange={(e) =>
-                          field.onChange(
-                            Number(
-                              e.target.value
-                            )
-                          )
-                        }
-                        className="border-blue-500/20 bg-black/30 text-white"
-                      />
-                    </FormControl>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* TARGET WEIGHT */}
-
-              <FormField
-                control={form.control}
-                name="targetWeight"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-blue-200">
-                      Target Weight
-                    </FormLabel>
-
-                    <FormControl>
-                      <Input
-                        type="number"
-                       value={
-  typeof field.value === "number"
-    ? field.value.toString()
-    : ""
-}
-                        onChange={(e) =>
-                          field.onChange(
-                            Number(
-                              e.target.value
-                            )
-                          )
-                        }
-                        className="border-blue-500/20 bg-black/30 text-white"
-                      />
-                    </FormControl>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              
 
               {/* ACTIVITY LEVEL */}
 
@@ -472,49 +397,7 @@ const Page = () => {
                 )}
               />
 
-              {/* GOAL TYPE */}
-
-              <FormField
-                control={form.control}
-                name="goalType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-blue-200">
-                      Goal Type
-                    </FormLabel>
-
-                    <FormControl>
-                      <select
-                        aria-label="Select goal type"
-                        title="Goal Type"
-                        value={
-                          field.value ?? ""
-                        }
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value
-                          )
-                        }
-                        className="h-10 w-full rounded-md border border-blue-500/20 bg-black/30 px-3 text-white outline-none"
-                      >
-                        <option value="weight_loss">
-                          Weight Loss
-                        </option>
-
-                        <option value="muscle_gain">
-                          Muscle Gain
-                        </option>
-
-                        <option value="maintain_fitness">
-                          Maintain Fitness
-                        </option>
-                      </select>
-                    </FormControl>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              
 
               {/* DAILY CALORIES */}
 
