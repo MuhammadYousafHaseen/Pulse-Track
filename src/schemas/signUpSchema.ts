@@ -55,30 +55,11 @@ export const signUpSchema = z.object({
     .min(50)
     .max(300),
 
-  currentWeight: z.coerce
-    .number()
-    .min(20)
-    .max(500),
-
-  targetWeight: z.coerce
-    .number()
-    .min(20)
-    .max(500)
-    .optional(),
-
   activityLevel: z
     .enum([
       "beginner",
       "intermediate",
       "advanced",
-    ])
-    .optional(),
-
-  goalType: z
-    .enum([
-      "weight_loss",
-      "muscle_gain",
-      "maintain_fitness",
     ])
     .optional(),
 
