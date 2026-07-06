@@ -101,12 +101,6 @@ export async function POST(request: Request) {
       recordedAt: new Date(),
     });
 
-    // update user
-    user.currentWeight = weight;
-    user.bmi = roundedBMI;
-
-    await user.save();
-
     return NextResponse.json({
       success: true,
       data: weightLog,
